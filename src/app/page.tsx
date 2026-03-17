@@ -802,7 +802,7 @@ export default function Home() {
                   <MovieRow 
                     title={getGenreTitle(activeGenre)} 
                     movies={genreMovies} 
-                    seeMoreLink={activeGenre ? `/browse/genre/${activeGenre}` : undefined}
+                    seeMoreLink={`/browse/genre/${activeGenre || 'all'}`}
                   />
                 )}
               </>
