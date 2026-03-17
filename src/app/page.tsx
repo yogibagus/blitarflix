@@ -24,7 +24,7 @@ function HeroSection({ movies }: HeroSectionProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [imageError, setImageError] = useState(false);
-  const [videoKeys, setVideoKeys] = useState<Record<number, string>>({});
+  const [videoKeys, setVideoKeys] = useState<Record<number, string | null>>({});
 
   const featuredMovies = movies.slice(0, 5);
   const currentMovie = featuredMovies[currentIndex];
