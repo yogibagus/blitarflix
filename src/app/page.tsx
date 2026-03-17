@@ -245,6 +245,17 @@ function MovieCard({ movie, mediaType = 'movie' }: MovieCardProps) {
             </div>
           )}
 
+          {/* Media Type Badge */}
+          <div className="absolute top-2 left-2 z-10">
+            <span className={`text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 rounded ${
+              mediaType === 'tv' 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-red-600 text-white'
+            }`}>
+              {mediaType === 'tv' ? 'TV' : 'Movie'}
+            </span>
+          </div>
+
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
