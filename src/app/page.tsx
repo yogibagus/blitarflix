@@ -284,7 +284,7 @@ function MovieCard({ movie, mediaType = 'movie' }: MovieCardProps) {
 }
 
 // ============ MOVIE ROW COMPONENT ============
-function MovieRow({ title, movies }: { title: string; movies: TMDBMovie[] }) {
+function MovieRow({ title, movies, seeMoreLink }: { title: string; movies: TMDBMovie[]; seeMoreLink?: string }) {
   const rowRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
@@ -316,9 +316,17 @@ function MovieRow({ title, movies }: { title: string; movies: TMDBMovie[] }) {
 
   return (
     <div className="py-3 sm:py-4">
-      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 sm:mb-4 px-3 sm:px-8 lg:px-16">
-        {title}
-      </h2>
+      <div className="flex items-center justify-between mb-3 sm:mb-4 px-3 sm:px-8 lg:px-16">
+        <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">{title}</h2>
+        {seeMoreLink && (
+          <Link 
+            href={seeMoreLink}
+            className="text-sm sm:text-base text-red-500 hover:text-red-400 font-medium transition-colors"
+          >
+            See More →
+          </Link>
+        )}
+      </div>
       
       <div className="relative group/row">
         {/* Left Arrow */}
@@ -778,7 +786,11 @@ export default function Home() {
                 />
                 
                 {platformMovies.length > 0 && (
-                  <MovieRow title={getPlatformTitle(activePlatform)} movies={platformMovies} />
+                  <MovieRow 
+                    title={getPlatformTitle(activePlatform)} 
+                    movies={platformMovies} 
+                    seeMoreLink={`/browse/platform/${activePlatform}`}
+                  />
                 )}
 
                 <GenreFilter 
@@ -787,7 +799,11 @@ export default function Home() {
                 />
 
                 {genreMovies.length > 0 && (
-                  <MovieRow title={getGenreTitle(activeGenre)} movies={genreMovies} />
+                  <MovieRow 
+                    title={getGenreTitle(activeGenre)} 
+                    movies={genreMovies} 
+                    seeMoreLink={activeGenre ? `/browse/genre/${activeGenre}` : undefined}
+                  />
                 )}
               </>
             )}
