@@ -126,8 +126,8 @@ export async function getTrendingMovies(timeWindow: 'day' | 'week' = 'day'): Pro
   return fetchTMDB<TMDBResponse<TMDBMovie>>(`/trending/movie/${timeWindow}`);
 }
 
-export async function getTrendingTV(timeWindow: 'day' | 'week' = 'day'): Promise<TMDBResponse<TMDBMovie>> {
-  return fetchTMDB<TMDBResponse<TMDBMovie>>(`/trending/tv/${timeWindow}`);
+export async function getTrendingTV(timeWindow: 'day' | 'week' = 'day', page: number = 1): Promise<TMDBResponse<TMDBTVShow>> {
+  return fetchTMDB<TMDBResponse<TMDBTVShow>>(`/trending/tv/${timeWindow}`, { page: page.toString() });
 }
 
 export async function getPopularMovies(page: number = 1): Promise<TMDBResponse<TMDBMovie>> {
@@ -154,6 +154,22 @@ export async function getMovieDetails(movieId: number): Promise<TMDBMovieDetails
   return fetchTMDB<TMDBMovieDetails>(`/movie/${movieId}`, {
     append_to_response: 'credits,videos,similar',
   });
+}
+
+export async function getTVByGenre(genreId: number, page: number = 1): Promise<TMDBResponse<TMDBTVShow>> {
+  return fetchTMDB<TMDBResponse<TMDBTVShow>>('/discover/tv', {
+    with_genres: genreId.toString(),
+    page: page.toString(),
+    sort_by: 'popularity.desc',
+  });
+}
+
+export async function searchTV(query: string, page: number = 1): Promise<TMDBResponse<TMDBTVShow>> {
+  return fetchTMDB<TMDBResponse<TMDBTVShow>>('/search/tv', { query, page: page.toString() });
+}
+
+export async function searchMulti(query: string, page: number = 1): Promise<TMDBResponse<TMDBMovie | TMDBTVShow>> {
+  return fetchTMDB<TMDBResponse<TMDBMovie | TMDBTVShow>>('/search/multi', { query, page: page.toString() });
 }
 
 // TV Show Types

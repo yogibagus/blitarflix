@@ -17,8 +17,8 @@ const PLATFORM_NAMES: Record<string, string> = {
   'paramount': 'Paramount+',
 };
 
-export default function PlatformBrowsePage({ params }: { params: Promise<{ platformId: string }> }) {
-  const [platformId, setPlatformId] = useState<string>('');
+export default function PlatformBrowsePage({ params }: { params: { platformId: string } }) {
+  const [platformId, setPlatformId] = useState<string>(params.platformId);
   const [movies, setMovies] = useState<TMDBMovie[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -26,10 +26,6 @@ export default function PlatformBrowsePage({ params }: { params: Promise<{ platf
   const [loadingMore, setLoadingMore] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    params.then(p => setPlatformId(p.platformId));
-  }, [params]);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);

@@ -29,13 +29,13 @@ export default function MyListPage() {
   const sortedList = [...myList].sort((a, b) => b.addedAt - a.addedAt);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-zinc-950">
       <Header isScrolled={isScrolled} showSearch={false} />
       
       <main className="flex-1 pt-20 sm:pt-24 pb-6 sm:pb-8 px-3 sm:px-8 lg:px-16">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">My List</h1>
-          <p className="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-base">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">My List</h1>
+          <p className="text-gray-400 mt-1 sm:mt-2 text-sm sm:text-base">
             {isLoaded ? `${myList.length} ${myList.length === 1 ? 'item' : 'items'}` : 'Loading...'}
           </p>
         </div>
@@ -46,10 +46,10 @@ export default function MyListPage() {
           </div>
         ) : sortedList.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 sm:h-80 text-center px-4">
-            <div className="h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+            <div className="h-20 w-20 rounded-full bg-zinc-800 flex items-center justify-center mb-4">
               <Play className="h-8 w-8 text-gray-400" />
             </div>
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">Your list is empty</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-300 mb-2">Your list is empty</h2>
             <p className="text-gray-500 mb-6 text-sm sm:text-base">Start adding movies and shows to your list!</p>
             <Link href="/">
               <button className="bg-red-600 hover:bg-red-700 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-sm sm:text-base touch-manipulation">
@@ -70,13 +70,13 @@ export default function MyListPage() {
         )}
       </main>
 
-      <footer className="bg-gray-100 border-t border-gray-200 mt-auto py-6 sm:py-8">
+      <footer className="bg-zinc-900 border-t border-zinc-800 mt-auto py-6 sm:py-8">
         <div className="px-4 sm:px-8 lg:px-16 text-center">
           <h3 className="text-lg sm:text-xl font-bold text-red-600 mb-2 sm:mb-3">BlitarFlix</h3>
           <p className="text-gray-500 text-xs sm:text-sm max-w-xl mx-auto mb-2 sm:mb-3 px-4">
             This site does not store any files on our server, we only linked to the media which is hosted on 3rd party services.
           </p>
-          <a href="mailto:contact@blitarflix.com" className="text-gray-600 text-xs sm:text-sm hover:text-red-600 transition-colors">
+          <a href="mailto:contact@blitarflix.com" className="text-gray-400 text-xs sm:text-sm hover:text-red-500 transition-colors">
             contact@blitarflix.com
           </a>
         </div>
@@ -105,7 +105,7 @@ function MyListItemCard({
   return (
     <div className="relative group">
       <Link href={href}>
-        <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-gray-100 shadow-md group-hover:shadow-xl transition-shadow">
+        <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-zinc-800 shadow-md group-hover:shadow-xl group-hover:shadow-red-900/20 transition-shadow">
           {posterUrl && !imageError ? (
             <Image
               src={posterUrl}
@@ -116,7 +116,7 @@ function MyListItemCard({
               onError={() => setImageError(true)}
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-zinc-700 to-zinc-800">
               <span className="text-gray-400 text-xs text-center px-2">{title}</span>
             </div>
           )}
@@ -126,7 +126,7 @@ function MyListItemCard({
 
           {/* Play icon on hover */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-white/90 text-gray-900 flex items-center justify-center shadow-lg">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg">
               <Play className="h-5 w-5 sm:h-6 sm:w-6 fill-current ml-0.5" />
             </div>
           </div>
@@ -143,7 +143,7 @@ function MyListItemCard({
         </div>
       </Link>
 
-      <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm font-medium text-gray-800 truncate">{title}</p>
+      <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm font-medium text-gray-300 truncate">{title}</p>
 
       {/* Remove button - always visible on mobile, hover on desktop */}
       <button

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getMoviesByGenre } from '@/lib/tmdb';
+import { getMoviesByGenre, getPopularMovies } from '@/lib/tmdb';
 
 export async function GET(
   request: Request,
@@ -7,9 +7,16 @@ export async function GET(
 ) {
   try {
     const { genreId } = await params;
-    const genre = parseInt(genreId);
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
+    
+    // Handle "all" case - return popular movies
+    if (genreId === 'all') {
+      const data = await getPopularMovies(page);
+      return NextResponse.json(data);
+    }
+    
+    const genre = parseInt(genreId);
     
     if (isNaN(genre)) {
       return NextResponse.json({ error: 'Invalid genre ID' }, { status: 400 });

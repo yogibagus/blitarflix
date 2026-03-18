@@ -37,8 +37,8 @@ const PLATFORM_NAMES: Record<string, string> = {
   'paramount': 'Paramount+',
 };
 
-export default function GenreBrowsePage({ params }: { params: Promise<{ genreId: string }> }) {
-  const [genreId, setGenreId] = useState<string>('');
+export default function GenreBrowsePage({ params }: { params: { genreId: string } }) {
+  const [genreId, setGenreId] = useState<string>(params.genreId);
   const [movies, setMovies] = useState<TMDBMovie[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -46,10 +46,6 @@ export default function GenreBrowsePage({ params }: { params: Promise<{ genreId:
   const [loadingMore, setLoadingMore] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    params.then(p => setGenreId(p.genreId));
-  }, [params]);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -68,7 +64,7 @@ export default function GenreBrowsePage({ params }: { params: Promise<{ genreId:
           setLoadingMore(true);
         }
 
-        const res = await fetch(`/api/movies/platform/${genreId}?page=${page}`);
+        const res = await fetch(`/api/movies/genre/${genreId}?page=${page}`);
         const data = await res.json();
 
         const results = data.results || [];
@@ -90,6 +86,32 @@ export default function GenreBrowsePage({ params }: { params: Promise<{ genreId:
 
     fetchMovies();
   }, [genreId, page]);
+
+  // Reset on genre change
+  useEffect(() => {
+    if (genreId) {
+      setPage(1);
+      setMovies([]);
+    }
+  }, [genreId]);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && page < totalPages && !loadingMore && !loading) {
+          setPage(p => p + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [page, totalPages, loadingMore, loading]);
 
   const genreName = GENRE_NAMES[genreId] || 'Movies';
 

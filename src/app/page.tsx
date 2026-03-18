@@ -542,27 +542,97 @@ function GenreFilter({ activeGenre, onGenreChange }: { activeGenre: number | nul
 }
 
 // ============ SEARCH RESULTS COMPONENT ============
-function SearchResults({ movies, query }: { movies: TMDBMovie[]; query: string }) {
+interface SearchResultsProps {
+  movies: TMDBMovie[];
+  query: string;
+  searchType: 'all' | 'movie' | 'tv';
+  onTypeChange: (type: 'all' | 'movie' | 'tv') => void;
+  loadingMore: boolean;
+  loadMoreRef: React.RefObject<HTMLDivElement>;
+}
+
+function SearchResults({ movies, query, searchType, onTypeChange, loadingMore, loadMoreRef }: SearchResultsProps) {
   if (!query) return null;
+
+  // Helper function to detect media type
+  const getMediaType = (item: TMDBMovie): 'movie' | 'tv' => {
+    if ('title' in item && !('name' in item)) return 'movie';
+    if ('name' in item && !('title' in item)) return 'tv';
+    // If both exist (shouldn't happen with multi-search), prefer title
+    return 'movie';
+  };
 
   return (
     <div className="min-h-[60vh] px-3 sm:px-8 lg:px-16 py-6 sm:py-8 pt-20 sm:pt-8">
-      <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">
-        Search results for &quot;{query}&quot;
-      </h2>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
+        <h2 className="text-xl sm:text-2xl font-bold text-white">
+          Search results for "{query}"
+        </h2>
+        
+        {/* Search Type Filter */}
+        <div className="flex items-center gap-1 bg-zinc-800 p-1 rounded-lg">
+          <button
+            type="button"
+            onClick={() => onTypeChange('all')}
+            className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
+              searchType === 'all'
+                ? 'bg-red-600 text-white'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            All
+          </button>
+          <button
+            type="button"
+            onClick={() => onTypeChange('movie')}
+            className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
+              searchType === 'movie'
+                ? 'bg-red-600 text-white'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            Movies
+          </button>
+          <button
+            type="button"
+            onClick={() => onTypeChange('tv')}
+            className={`px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
+              searchType === 'tv'
+                ? 'bg-red-600 text-white'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            TV Shows
+          </button>
+        </div>
+      </div>
       
       {movies.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-400 text-base sm:text-lg">No results found for &quot;{query}&quot;</p>
+          <p className="text-gray-400 text-base sm:text-lg">No results found for "{query}"</p>
           <p className="text-gray-500 text-sm mt-2">Try searching with different keywords</p>
         </div>
       ) : (
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4">
           {movies.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
+            <MovieCard 
+              key={movie.id} 
+              movie={movie} 
+              mediaType={getMediaType(movie)} 
+            />
           ))}
         </div>
       )}
+
+      {/* Loading indicator for infinite scroll */}
+      {loadingMore && movies.length > 0 && (
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-500"></div>
+        </div>
+      )}
+
+      {/* Load more trigger */}
+      <div ref={loadMoreRef} className="h-4" />
     </div>
   );
 }
@@ -598,6 +668,11 @@ export default function Home() {
   const [activePlatform, setActivePlatform] = useState('all');
   const [activeGenre, setActiveGenre] = useState<number | null>(null);
   const [trendingType, setTrendingType] = useState<'movie' | 'tv'>('movie');
+  const [searchPage, setSearchPage] = useState(1);
+  const [searchTotalPages, setSearchTotalPages] = useState(1);
+  const [searchLoadingMore, setSearchLoadingMore] = useState(false);
+  const [searchType, setSearchType] = useState<'all' | 'movie' | 'tv'>('all');
+  const searchLoadMoreRef = useRef<HTMLDivElement>(null);
 
   // Platform to genre mapping
   const platformGenreMap: Record<string, number> = {
@@ -704,20 +779,86 @@ export default function Home() {
   // Handle search
   const handleSearch = useCallback(async (query: string) => {
     setSearchQuery(query);
+    setSearchPage(1);
+    setSearchTotalPages(1);
+    
     if (!query.trim()) {
       setSearchResults([]);
       return;
     }
 
     try {
-      const res = await fetch(`/api/movies/search?query=${encodeURIComponent(query)}`);
+      let searchUrl = '';
+      if (searchType === 'movie') {
+        searchUrl = `/api/movies/search?query=${encodeURIComponent(query)}&page=1`;
+      } else if (searchType === 'tv') {
+        searchUrl = `/api/tv/search?query=${encodeURIComponent(query)}&page=1`;
+      } else {
+        searchUrl = `/api/search/multi?query=${encodeURIComponent(query)}&page=1`;
+      }
+      
+      const res = await fetch(searchUrl);
       const data = await res.json();
       setSearchResults(data.results || []);
+      setSearchTotalPages(data.total_pages || 1);
     } catch (error) {
-      console.error('Error searching movies:', error);
+      console.error('Error searching content:', error);
       setSearchResults([]);
     }
-  }, []);
+  }, [searchType]);
+
+  // Load more search results
+  const loadMoreSearchResults = useCallback(async () => {
+    if (searchLoadingMore || searchPage >= searchTotalPages || !searchQuery) return;
+
+    setSearchLoadingMore(true);
+    try {
+      let searchUrl = '';
+      if (searchType === 'movie') {
+        searchUrl = `/api/movies/search?query=${encodeURIComponent(searchQuery)}&page=${searchPage + 1}`;
+      } else if (searchType === 'tv') {
+        searchUrl = `/api/tv/search?query=${encodeURIComponent(searchQuery)}&page=${searchPage + 1}`;
+      } else {
+        searchUrl = `/api/search/multi?query=${encodeURIComponent(searchQuery)}&page=${searchPage + 1}`;
+      }
+
+      const res = await fetch(searchUrl);
+      const data = await res.json();
+      setSearchResults(prev => [...prev, ...(data.results || [])]);
+      setSearchPage(prev => prev + 1);
+    } catch (error) {
+      console.error('Error loading more search results:', error);
+    } finally {
+      setSearchLoadingMore(false);
+    }
+  }, [searchLoadingMore, searchPage, searchTotalPages, searchQuery, searchType]);
+
+  // Infinite scroll observer for search results
+  useEffect(() => {
+    if (!searchQuery) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreSearchResults();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (searchLoadMoreRef.current) {
+      observer.observe(searchLoadMoreRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [searchQuery, loadMoreSearchResults]);
+
+  // Reset search when type changes
+  useEffect(() => {
+    if (searchQuery) {
+      handleSearch(searchQuery);
+    }
+  }, [searchType, searchQuery, handleSearch]);
 
   const getPlatformTitle = (platform: string) => {
     const names: Record<string, string> = {
@@ -753,7 +894,14 @@ export default function Home() {
         )}
 
         {searchQuery ? (
-          <SearchResults movies={searchResults} query={searchQuery} />
+          <SearchResults 
+            movies={searchResults} 
+            query={searchQuery}
+            searchType={searchType}
+            onTypeChange={setSearchType}
+            loadingMore={searchLoadingMore}
+            loadMoreRef={searchLoadMoreRef}
+          />
         ) : (
           <div className="relative z-10 -mt-16 sm:-mt-20">
             {loading ? (

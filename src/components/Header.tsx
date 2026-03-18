@@ -75,11 +75,14 @@ export function Header({ onSearch, isScrolled = false, showSearch = true }: Head
               <Link href="/" className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">
                 Home
               </Link>
-              <Link href="/?type=movie" className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">
+              <Link href="/browse/movie" className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">
                 Movies
               </Link>
-              <Link href="/?type=tv" className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">
+              <Link href="/browse/tv" className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">
                 TV Shows
+              </Link>
+              <Link href="/browse/tv?genre=16" className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                Anime
               </Link>
               <Link href="/my-list" className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">
                 My List
@@ -165,18 +168,25 @@ export function Header({ onSearch, isScrolled = false, showSearch = true }: Head
                   Home
                 </Link>
                 <Link 
-                  href="/?type=movie" 
+                  href="/browse/movie" 
                   className="block py-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-zinc-800 rounded-lg px-3 transition-colors touch-manipulation"
                   onClick={closeMobileMenu}
                 >
                   Movies
                 </Link>
                 <Link 
-                  href="/?type=tv" 
+                  href="/browse/tv" 
                   className="block py-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-zinc-800 rounded-lg px-3 transition-colors touch-manipulation"
                   onClick={closeMobileMenu}
                 >
                   TV Shows
+                </Link>
+                <Link 
+                  href="/browse/tv?genre=16" 
+                  className="block py-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-zinc-800 rounded-lg px-3 transition-colors touch-manipulation"
+                  onClick={closeMobileMenu}
+                >
+                  Anime
                 </Link>
                 <Link 
                   href="/my-list" 
