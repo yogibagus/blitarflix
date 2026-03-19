@@ -63,13 +63,19 @@ export function DevToolsBlocker() {
     // METHOD 6: Developer Tools Detection
     // ============================================
 
-    // Detection 1: Viewport size detection
+    // Detection 1: Viewport size detection (only for desktop browsers)
     const checkViewportSize = () => {
-      const threshold = 160; // Minimum difference to trigger detection
-      const widthDiff = window.outerWidth - window.innerWidth > threshold;
-      const heightDiff = window.outerHeight - window.innerHeight > threshold;
+      // Skip detection on mobile devices to avoid false positives during rotation
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if (isMobile) return;
 
-      if (widthDiff || heightDiff) {
+      const threshold = 160; // Minimum difference to trigger detection
+      const widthDiff = window.outerWidth - window.innerWidth;
+      const heightDiff = window.outerHeight - window.innerHeight;
+
+      // Only trigger if the difference is significant AND both dimensions are affected
+      // This helps distinguish dev tools from normal window resizing
+      if ((widthDiff > threshold && heightDiff > threshold) || (widthDiff > 300)) {
         redirectToBlank();
       }
     };
@@ -98,16 +104,10 @@ export function DevToolsBlocker() {
       }
     };
 
-    // Detection 4: Screen orientation detection
-    const handleOrientationChange = () => {
-      // Dev tools can trigger orientation-like changes
-      checkViewportSize();
-    };
-
     // Add event listeners
     document.addEventListener('keydown', handleKeyDown, true);
     window.addEventListener('resize', checkViewportSize);
-    window.addEventListener('orientationchange', handleOrientationChange);
+    // Removed orientationchange listener to prevent mobile rotation issues
 
     // Initial checks
     checkViewportSize();
@@ -124,7 +124,6 @@ export function DevToolsBlocker() {
     return () => {
       document.removeEventListener('keydown', handleKeyDown, true);
       window.removeEventListener('resize', checkViewportSize);
-      window.removeEventListener('orientationchange', handleOrientationChange);
       clearInterval(intervalId);
     };
   }, []);

@@ -10,7 +10,8 @@ import {
   ChevronLeft, 
   ChevronRight,
   Volume2,
-  VolumeX
+  VolumeX,
+  Star
 } from 'lucide-react';
 import { getImageUrl, TMDBMovie } from '@/lib/tmdb';
 import { Header } from '@/components/Header';
@@ -208,6 +209,32 @@ function HeroSection({ movies }: HeroSectionProps) {
   );
 }
 
+// ============ STAR RATING COMPONENT ============
+interface StarRatingProps {
+  rating: number;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+function StarRating({ rating, size = 'sm' }: StarRatingProps) {
+  const sizeClasses = {
+    sm: 'h-3 w-3',
+    md: 'h-4 w-4',
+    lg: 'h-5 w-5'
+  };
+
+  const sizeCurrent = sizeClasses[size];
+  const textSize = size === 'lg' ? 'text-sm' : 'text-xs';
+
+  return (
+    <div className="flex items-center gap-1.5 text-white">
+      <Star className={`${sizeCurrent} text-yellow-500 fill-current`} />
+      <span className={`font-medium ${textSize}`}>
+        {rating.toFixed(1)}
+      </span>
+    </div>
+  );
+}
+
 // ============ MOVIE CARD COMPONENT ============
 interface MovieCardProps {
   movie: TMDBMovie;
@@ -225,6 +252,7 @@ function MovieCard({ movie, mediaType = 'movie' }: MovieCardProps) {
   const releaseYear = movie.release_date?.split('-')[0] || 
     (movie as { first_air_date?: string }).first_air_date?.split('-')[0] || 'N/A';
   const detailUrl = mediaType === 'tv' ? `/tv/${movie.id}` : `/movie/${movie.id}`;
+  const rating = movie.vote_average || 0;
 
   return (
     <Link href={detailUrl} className="flex-shrink-0">
@@ -261,11 +289,9 @@ function MovieCard({ movie, mediaType = 'movie' }: MovieCardProps) {
 
           {/* Info overlay on hover/desktop */}
           <div className="hidden sm:block absolute bottom-0 left-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="flex items-center gap-2 text-xs text-white">
-              <span className="bg-green-500 text-white text-xs px-1.5 py-0.5 rounded">
-                {Math.round(movie.vote_average * 10)}%
-              </span>
-              <span className="text-gray-300">{releaseYear}</span>
+            <div className="flex flex-col gap-1.5">
+              <StarRating rating={rating} size="sm" />
+              <span className="text-xs text-gray-300">{releaseYear}</span>
             </div>
           </div>
 
