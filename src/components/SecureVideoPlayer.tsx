@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { X, Play } from 'lucide-react';
+import { X, Play, ShieldCheck, ShieldAlert, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTurnstile } from './TurnstileProvider';
+import { Turnstile } from './Turnstile';
 
 interface SecureVideoPlayerProps {
   url: string;
@@ -13,6 +15,8 @@ interface SecureVideoPlayerProps {
 export function SecureVideoPlayer({ url, onClose, title }: SecureVideoPlayerProps) {
   const [isReady, setIsReady] = useState(false);
   const [clickCount, setClickCount] = useState(0);
+  const { isVerified, isLoading } = useTurnstile();
+  const [turnstileKey, setTurnstileKey] = useState(0);
 
   // Handle keyboard
   useEffect(() => {
@@ -25,14 +29,30 @@ export function SecureVideoPlayer({ url, onClose, title }: SecureVideoPlayerProp
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  // Reset turnstile when component mounts
+  useEffect(() => {
+    setTurnstileKey(prev => prev + 1);
+  }, []);
+
   // Handle click to dismiss overlay
   const handleClick = useCallback(() => {
+    if (!isVerified) return;
+    
     if (clickCount === 0) {
       setClickCount(1);
     } else if (clickCount === 1) {
       setIsReady(true);
     }
-  }, [clickCount]);
+  }, [clickCount, isVerified]);
+
+  const handleTurnstileSuccess = useCallback(() => {
+    // Verification successful, user can now proceed
+  }, []);
+
+  const handleTurnstileError = useCallback(() => {
+    // Turnstile widget will automatically retry
+    setTurnstileKey(prev => prev + 1);
+  }, []);
 
   return (
     <motion.div
@@ -58,11 +78,57 @@ export function SecureVideoPlayer({ url, onClose, title }: SecureVideoPlayerProp
         </div>
       )}
 
+      {/* Security Verification Overlay */}
+      <AnimatePresence>
+        {!isVerified && !isReady && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-10 flex items-center justify-center bg-black/95"
+          >
+            <div className="text-center px-4 max-w-md">
+              {isLoading ? (
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="text-white"
+                >
+                  <Loader2 className="h-16 w-16 text-blue-500 animate-spin mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Verifying Security</h3>
+                  <p className="text-zinc-400 text-sm">Please wait while we verify you're human...</p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-white"
+                >
+                  <div className="h-20 w-20 rounded-full bg-blue-600/20 border-2 border-blue-500 flex items-center justify-center mx-auto mb-4">
+                    <ShieldCheck className="h-10 w-10 text-blue-500" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Security Verification</h3>
+                  <p className="text-zinc-400 text-sm mb-6">
+                    We need to verify you're human before playing this video.
+                  </p>
+                  <Turnstile 
+                    key={turnstileKey}
+                    onSuccess={handleTurnstileSuccess}
+                    onError={handleTurnstileError}
+                  />
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Click hint */}
-      {!isReady && (
+      {!isReady && isVerified && (
         <div className="absolute top-3 right-16 sm:top-4 sm:right-20 z-20">
-          <div className="bg-red-600/90 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5">
-            <span className="animate-pulse">●</span>
+          <div className="bg-green-600/90 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5">
+            <ShieldCheck className="h-3 w-3" />
             {clickCount === 0 ? 'Tap to continue' : 'Tap again to play'}
           </div>
         </div>
@@ -70,7 +136,7 @@ export function SecureVideoPlayer({ url, onClose, title }: SecureVideoPlayerProp
 
       {/* Click overlay - captures first click(s) */}
       <AnimatePresence>
-        {!isReady && (
+        {!isReady && isVerified && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
