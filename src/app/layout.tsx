@@ -4,6 +4,7 @@ import './globals.css';
 import { JsonLd } from '@/components/JsonLd';
 import { generateWebSiteSchema } from '@/lib/structured-data';
 import { DevToolsBlocker } from '@/components/DevToolsBlocker';
+import { Analytics } from '@vercel/analytics/next';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -72,6 +73,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <DevToolsBlocker />
         {children}
+        <Analytics />
       </body>
     </html>
   );
