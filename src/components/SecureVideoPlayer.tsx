@@ -46,10 +46,12 @@ export function SecureVideoPlayer({ url, onClose, title }: SecureVideoPlayerProp
   }, [clickCount, isVerified]);
 
   const handleTurnstileSuccess = useCallback(() => {
+    console.log('Turnstile verification completed in SecureVideoPlayer');
     // Verification successful, user can now proceed
   }, []);
 
   const handleTurnstileError = useCallback(() => {
+    console.error('Turnstile verification failed in SecureVideoPlayer, retrying...');
     // Turnstile widget will automatically retry
     setTurnstileKey(prev => prev + 1);
   }, []);

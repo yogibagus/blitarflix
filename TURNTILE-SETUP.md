@@ -20,7 +20,7 @@ These have been added to `.env` and documented in `.env.example`.
 
 #### `src/components/Turnstile.tsx`
 - Wrapper component for the Turnstile widget
-- Configured as "invisible" mode (no visible challenge for users)
+- Configured as "normal" mode (shows visible CAPTCHA challenge)
 - Handles success, error, and expire callbacks
 - Automatically validates tokens with the server
 
@@ -48,23 +48,24 @@ These have been added to `.env` and documented in `.env.example`.
 
 1. **User opens a video** → SecureVideoPlayer component mounts
 2. **Security overlay appears** → Shows "Verifying Security" with spinner
-3. **Invisible verification runs** → Turnstile analyzes user behavior in background
+3. **CAPTCHA challenge appears** → Users complete the visible verification challenge
 4. **Verification completes** → Server validates the token
 5. **Success** → Overlay disappears, green badge appears
 6. **User taps twice** → Video plays as normal
 
 ### What Users Experience:
 
-- **Legitimate users**: Seamless, invisible verification (no CAPTCHA challenges)
+- **Legitimate users**: Complete a simple CAPTCHA challenge (puzzle, checkbox, etc.)
 - **Bots**: Blocked at the verification stage
 - **Failed verification**: Automatic retry with a new widget instance
 
 ## Security Features
 
-### 1. Invisible Verification
-- No visible challenges for legitimate users
-- Analyzes user behavior patterns
-- Scores users as human/bot based on multiple factors
+### 1. Visible CAPTCHA Verification
+- Users see a CAPTCHA challenge (checkbox, puzzle, etc.)
+- Cloudflare Turnstile analyzes user behavior
+- Simple and fast verification for legitimate users
+- Difficult for bots to bypass
 
 ### 2. Server-Side Validation
 - All tokens are verified server-side
