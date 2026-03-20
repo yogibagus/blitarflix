@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Play, Loader2 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { getImageUrl, TMDBMovie } from '@/lib/tmdb';
+import { SkeletonGrid } from '@/components/skeletons/SkeletonGrid';
 
 const PLATFORMS = [
   { id: 'all', name: 'All Platforms' },
@@ -267,9 +268,7 @@ function MovieBrowsePageContent() {
         )}
 
         {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-red-500" />
-          </div>
+          <SkeletonGrid count={12} showFilterPlaceholders={!isSearching} />
         ) : movies.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-zinc-400 text-lg">No movies found</p>

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Play, Loader2 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { getImageUrl, TMDBTVShow } from '@/lib/tmdb';
+import { SkeletonGrid } from '@/components/skeletons/SkeletonGrid';
 
 const GENRES = [
   { id: 'all', name: 'All Genres' },
@@ -204,9 +205,7 @@ function TVBrowsePageContent() {
         )}
 
         {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-red-500" />
-          </div>
+          <SkeletonGrid count={12} showFilterPlaceholders={!isSearching} />
         ) : tvShows.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-zinc-400 text-lg">No TV shows found</p>

@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { getImageUrl, TMDBMovie } from '@/lib/tmdb';
 import { Header } from '@/components/Header';
+import { SkeletonHero } from '@/components/skeletons/SkeletonHero';
+import { SkeletonRow } from '@/components/skeletons/SkeletonRow';
 
 // ============ HERO SECTION COMPONENT ============
 interface HeroSectionProps {
@@ -931,9 +933,13 @@ export default function Home() {
         ) : (
           <div className="relative z-10 -mt-16 sm:-mt-20">
             {loading ? (
-              <div className="flex items-center justify-center h-96">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
-              </div>
+              <>
+                <SkeletonHero />
+                <SkeletonRow showTitle={true} showSeeMore={true} count={8} />
+                <SkeletonRow showTitle={true} showSeeMore={true} count={8} />
+                <SkeletonRow showTitle={true} showSeeMore={true} count={8} />
+                <SkeletonRow showTitle={true} showSeeMore={true} count={8} />
+              </>
             ) : (
               <>
                 {top10Today.length > 0 && (

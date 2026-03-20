@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { Play, Plus, Check, Star, Calendar, ChevronDown, Volume2, VolumeX } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { SecureVideoPlayer } from '@/components/SecureVideoPlayer';
+import { SkeletonTVDetail } from '@/components/skeletons/SkeletonTVDetail';
 import { useMyList } from '@/hooks/useMyList';
 import { getImageUrl, TMDBTVDetails, TMDBSeasonDetails, TMDBEpisode, TMDBVideo } from '@/lib/tmdb';
 
@@ -124,14 +125,7 @@ export default function TVDetailPage() {
   const isInMyList = tv ? isInList(tv.id, 'tv') : false;
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col bg-zinc-950">
-        <Header isScrolled={true} showSearch={false} />
-        <div className="flex items-center justify-center h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
-        </div>
-      </div>
-    );
+    return <SkeletonTVDetail />;
   }
 
   if (error || !tv) {
