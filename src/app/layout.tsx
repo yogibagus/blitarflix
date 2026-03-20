@@ -5,7 +5,6 @@ import { JsonLd } from '@/components/JsonLd';
 import { generateWebSiteSchema } from '@/lib/structured-data';
 import { DevToolsBlocker } from '@/components/DevToolsBlocker';
 import { Analytics } from '@vercel/analytics/next';
-import { TurnstileProvider } from '@/components/TurnstileProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -72,11 +71,9 @@ export default function RootLayout({
         <JsonLd data={generateWebSiteSchema()} />
       </head>
       <body className={inter.className}>
-        <TurnstileProvider>
-          <DevToolsBlocker />
-          {children}
-          <Analytics />
-        </TurnstileProvider>
+        <DevToolsBlocker />
+        {children}
+        <Analytics />
       </body>
     </html>
   );
