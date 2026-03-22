@@ -73,7 +73,7 @@ function HeroSection({ movies }: HeroSectionProps) {
   if (!currentMovie) return null;
 
   const backdropUrl = currentMovie.backdrop_path
-    ? getImageUrl(currentMovie.backdrop_path, 'backdrop', 'original')
+    ? getImageUrl(currentMovie.backdrop_path, 'backdrop', 'large')
     : null;
 
   const trailerUrl = currentVideoKey

@@ -120,7 +120,7 @@ export default function MovieDetailPage() {
   }
 
   const backdropUrl = movie.backdrop_path
-    ? getImageUrl(movie.backdrop_path, 'backdrop', 'original')
+    ? getImageUrl(movie.backdrop_path, 'backdrop', 'large')
     : null;
   const posterUrl = movie.poster_path
     ? getImageUrl(movie.poster_path, 'poster', 'large')

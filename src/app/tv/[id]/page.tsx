@@ -150,7 +150,7 @@ export default function TVDetailPage() {
   }
 
   const backdropUrl = tv.backdrop_path
-    ? getImageUrl(tv.backdrop_path, 'backdrop', 'original')
+    ? getImageUrl(tv.backdrop_path, 'backdrop', 'large')
     : null;
   const posterUrl = tv.poster_path
     ? getImageUrl(tv.poster_path, 'poster', 'large')

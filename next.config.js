@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    unoptimized: false,
+    loader: 'custom',
+    loaderFile: './image-loader.js',
     remotePatterns: [
       {
         protocol: 'https',
