@@ -27,7 +27,7 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.vidking.net https://vidking.net",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https: http:",
+              "img-src 'self' data: blob: https://image.tmdb.org https://i.ytimg.com https: http:",
               "media-src 'self' blob: data: https:",
               "frame-src 'self' https://www.vidking.net https://vidking.net https://www.youtube.com https://youtube.com https://*.youtube.com",
               "frame-ancestors 'self'",
