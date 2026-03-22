@@ -5,7 +5,6 @@ import { JsonLd } from '@/components/JsonLd';
 import { generateWebSiteSchema } from '@/lib/structured-data';
 import { DevToolsBlocker } from '@/components/DevToolsBlocker';
 import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -75,7 +74,6 @@ export default function RootLayout({
         <DevToolsBlocker />
         {children}
         <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );
