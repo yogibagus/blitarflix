@@ -122,8 +122,8 @@ function HeroSection({ movies }: HeroSectionProps) {
         </motion.div>
       </AnimatePresence>
 
-      <div className="absolute inset-0 flex items-end sm:items-center">
-        <div className="px-4 sm:px-8 lg:px-16 w-full sm:max-w-2xl pb-24 sm:pb-0">
+      <div className="absolute inset-0 flex items-center">
+        <div className="px-4 sm:px-8 lg:px-16 w-full sm:max-w-2xl pt-14 sm:pt-0">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentMovie.id}
@@ -916,7 +916,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-zinc-950">
       <Header onSearch={handleSearch} isScrolled={isScrolled} />
       
-      <main className="flex-1 pt-14 sm:pt-16">
+      <main className="flex-1">
         {trendingMovies.length > 0 && !searchQuery && (
           <HeroSection movies={trendingMovies} />
         )}
@@ -931,7 +931,7 @@ export default function Home() {
             loadMoreRef={searchLoadMoreRef}
           />
         ) : (
-          <div className="relative z-10 -mt-16 sm:-mt-20">
+          <div className="relative z-10">
             {loading ? (
               <>
                 <SkeletonHero />
