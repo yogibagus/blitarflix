@@ -33,11 +33,11 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.vidking.net https://vidking.net",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vaplayer.ru https://www.vaplayer.ru",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https://image.tmdb.org https://i.ytimg.com https: http:",
               "media-src 'self' blob: data: https:",
-              "frame-src 'self' https://www.vidking.net https://vidking.net https://www.youtube.com https://youtube.com https://*.youtube.com",
+              "frame-src 'self' https://vaplayer.ru https://www.vaplayer.ru https://www.youtube.com https://youtube.com https://*.youtube.com",
               "frame-ancestors 'self'",
               "connect-src 'self' https: wss:",
               "font-src 'self' data:",

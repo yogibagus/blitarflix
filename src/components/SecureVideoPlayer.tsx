@@ -14,6 +14,27 @@ export function SecureVideoPlayer({ url, onClose, title }: SecureVideoPlayerProp
   const [isReady, setIsReady] = useState(false);
   const [clickCount, setClickCount] = useState(0);
 
+  // Block popup/new tab ads while player is active
+  useEffect(() => {
+    const originalOpen = window.open;
+    window.open = function() {
+      return null;
+    };
+
+    // Block navigation via window.location changes from iframe
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      return '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.open = originalOpen;
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
   // Handle keyboard
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -100,14 +121,10 @@ export function SecureVideoPlayer({ url, onClose, title }: SecureVideoPlayerProp
         )}
       </AnimatePresence>
 
-      {/* Iframe with sandbox - blocks popups but allows video playback */}
+      {/* Iframe for video playback - sandbox blocks popups (no allow-popups) */}
       <iframe
         src={url}
         className="w-full h-full border-0"
-        // Sandbox allows essential features but blocks:
-        // - popups (no allow-popups)
-        // - top navigation (no allow-top-navigation)
-        // - opening new windows
         sandbox="allow-scripts allow-same-origin allow-forms"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
         allowFullScreen

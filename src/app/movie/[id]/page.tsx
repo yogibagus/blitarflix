@@ -71,7 +71,7 @@ export default function MovieDetailPage() {
   );
 
   const playerUrl = movie 
-    ? `https://www.vidking.net/embed/movie/${movie.id}?color=e50914&autoPlay=true`
+    ? `https://vaplayer.ru/embed/movie/${movie.id}?color=e50914&autoPlay=true`
     : null;
 
   const trailerUrl = trailer

@@ -101,7 +101,7 @@ export default function TVDetailPage() {
   );
 
   const playerUrl = tv 
-    ? `https://www.vidking.net/embed/tv/${tv.id}/${selectedSeason}/${selectedEpisode}?color=e50914&autoPlay=true`
+    ? `https://vaplayer.ru/embed/tv/${tv.id}/${selectedSeason}/${selectedEpisode}?color=e50914&autoPlay=true`
     : null;
 
   const trailerUrl = trailer
