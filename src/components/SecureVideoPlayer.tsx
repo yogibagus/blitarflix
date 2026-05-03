@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { X, Play, ShieldCheck } from 'lucide-react';
+import { X, Play, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface SecureVideoPlayerProps {
@@ -13,6 +13,7 @@ interface SecureVideoPlayerProps {
 export function SecureVideoPlayer({ url, onClose, title }: SecureVideoPlayerProps) {
   const [isReady, setIsReady] = useState(false);
   const [clickCount, setClickCount] = useState(0);
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   // Block popup/new tab ads while player is active
   useEffect(() => {
@@ -39,12 +40,16 @@ export function SecureVideoPlayer({ url, onClose, title }: SecureVideoPlayerProp
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        if (showConfirmClose) {
+          setShowConfirmClose(false);
+        } else {
+          setShowConfirmClose(true);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [showConfirmClose]);
 
   // Handle click to dismiss overlay
   const handleClick = useCallback(() => {
@@ -65,7 +70,7 @@ export function SecureVideoPlayer({ url, onClose, title }: SecureVideoPlayerProp
       {/* Close button */}
       <button
         className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 h-10 w-10 rounded-full bg-zinc-800/90 hover:bg-zinc-700 text-white flex items-center justify-center touch-manipulation"
-        onClick={onClose}
+        onClick={() => setShowConfirmClose(true)}
       >
         <X className="h-5 w-5" />
       </button>
@@ -132,6 +137,53 @@ export function SecureVideoPlayer({ url, onClose, title }: SecureVideoPlayerProp
           pointerEvents: isReady ? 'auto' : 'none'
         }}
       />
+
+      {/* Close confirmation modal */}
+      <AnimatePresence>
+        {showConfirmClose && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute inset-0 z-30 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+            onClick={() => setShowConfirmClose(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 sm:p-8 mx-4 max-w-sm w-full shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-10 w-10 rounded-full bg-red-600/20 flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                </div>
+                <h3 className="text-white text-lg font-semibold">Close Video?</h3>
+              </div>
+              <p className="text-zinc-400 text-sm mb-6">
+                Are you sure you want to close the video player? Your current playback will be lost.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium transition-colors touch-manipulation"
+                  onClick={() => setShowConfirmClose(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors touch-manipulation"
+                  onClick={onClose}
+                >
+                  Yes, Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

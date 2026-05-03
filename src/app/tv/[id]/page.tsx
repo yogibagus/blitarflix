@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Play, Plus, Check, Star, Calendar, ChevronDown, Volume2, VolumeX } from 'lucide-react';
+import { Play, Plus, Check, Star, Calendar, ChevronDown, Volume2, VolumeX, AlertTriangle } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { SecureVideoPlayer } from '@/components/SecureVideoPlayer';
 import { SkeletonTVDetail } from '@/components/skeletons/SkeletonTVDetail';
@@ -29,8 +29,35 @@ export default function TVDetailPage() {
   const [showSeasonDropdown, setShowSeasonDropdown] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [showNewContentWarning, setShowNewContentWarning] = useState(false);
   
   const { isInList, toggleItem } = useMyList();
+
+  // Check if content is less than 1 month old
+  const isNewContent = (dateStr: string | undefined | null): boolean => {
+    if (!dateStr) return false;
+    const releaseDate = new Date(dateStr);
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    return releaseDate > oneMonthAgo;
+  };
+
+  const handlePlayClick = () => {
+    if (isNewContent(tv?.first_air_date)) {
+      setShowNewContentWarning(true);
+    } else {
+      setIsPlayerVisible(true);
+    }
+  };
+
+  const handleEpisodeClick = (episodeNumber: number) => {
+    setSelectedEpisode(episodeNumber);
+    if (isNewContent(tv?.first_air_date)) {
+      setShowNewContentWarning(true);
+    } else {
+      setIsPlayerVisible(true);
+    }
+  };
   
   // Fetch TV details
   useEffect(() => {
@@ -259,7 +286,7 @@ export default function TVDetailPage() {
 
                 <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-5">
                   <button
-                    onClick={() => setIsPlayerVisible(true)}
+                    onClick={handlePlayClick}
                     className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-sm sm:text-base touch-manipulation shadow-lg"
                   >
                     <Play className="h-5 w-5 sm:h-6 sm:w-6 fill-current" />
@@ -358,10 +385,7 @@ export default function TVDetailPage() {
           {episodes.map((episode) => (
             <button
               key={episode.id}
-              onClick={() => {
-                setSelectedEpisode(episode.episode_number);
-                setIsPlayerVisible(true);
-              }}
+              onClick={() => handleEpisodeClick(episode.episode_number)}
               className={`w-full flex gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl transition-all text-left ${
                 selectedEpisode === episode.episode_number
                   ? 'bg-red-950 border-2 border-red-600'
@@ -481,6 +505,40 @@ export default function TVDetailPage() {
             ))}
           </div>
         </section>
+      )}
+
+      {/* New Content Warning Modal */}
+      {showNewContentWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 sm:p-8 mx-4 max-w-sm w-full shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 rounded-full bg-yellow-600/20 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="h-5 w-5 text-yellow-500" />
+              </div>
+              <h3 className="text-white text-lg font-semibold">Recently Released</h3>
+            </div>
+            <p className="text-zinc-400 text-sm mb-6">
+              This TV show was recently released. The video may not be available yet on the server, or the quality may be lower than expected. Do you want to continue?
+            </p>
+            <div className="flex gap-3">
+              <button
+                className="flex-1 px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium transition-colors touch-manipulation"
+                onClick={() => setShowNewContentWarning(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors touch-manipulation"
+                onClick={() => {
+                  setShowNewContentWarning(false);
+                  setIsPlayerVisible(true);
+                }}
+              >
+                Continue Anyway
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <footer className="bg-zinc-900 border-t border-zinc-800 mt-auto py-6 sm:py-8">
