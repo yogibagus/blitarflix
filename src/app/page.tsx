@@ -29,6 +29,7 @@ function HeroSection({ movies }: HeroSectionProps) {
   const [isMuted, setIsMuted] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [videoKeys, setVideoKeys] = useState<Record<number, string | null>>({});
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const { tt } = useTranslation();
 
   const featuredMovies = movies.slice(0, 5);
@@ -61,6 +62,11 @@ function HeroSection({ movies }: HeroSectionProps) {
     fetchVideo();
   }, [currentMovie, videoKeys]);
 
+  // Reset mute state when slide changes (new iframe loads with mute=1)
+  useEffect(() => {
+    setIsMuted(true);
+  }, [currentIndex]);
+
   useEffect(() => {
     if (featuredMovies.length <= 1) return;
     
@@ -79,8 +85,20 @@ function HeroSection({ movies }: HeroSectionProps) {
     : null;
 
   const trailerUrl = currentVideoKey
-    ? `https://www.youtube.com/embed/${currentVideoKey}?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&loop=1&playlist=${currentVideoKey}`
+    ? `https://www.youtube.com/embed/${currentVideoKey}?autoplay=1&mute=1&enablejsapi=1&controls=0&showinfo=0&rel=0&loop=1&playlist=${currentVideoKey}&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`
     : null;
+
+  // Toggle mute/unmute via YouTube IFrame API postMessage
+  const toggleMute = useCallback(() => {
+    if (!iframeRef.current?.contentWindow) return;
+    const newYoutubeState = !isMuted;
+    setIsMuted(newYoutubeState);
+    const command = newYoutubeState ? 'mute' : 'unMute';
+    iframeRef.current.contentWindow.postMessage(
+      JSON.stringify({ event: 'command', func: command, args: '' }),
+      '*'
+    );
+  }, [isMuted]);
 
   return (
     <div className="relative h-[60vh] sm:h-[75vh] lg:h-[85vh] w-full overflow-hidden">
@@ -97,6 +115,7 @@ function HeroSection({ movies }: HeroSectionProps) {
           {currentVideoKey && trailerUrl ? (
             <div className="absolute inset-0 overflow-hidden">
               <iframe
+                ref={iframeRef}
                 src={trailerUrl}
                 className="absolute top-1/2 left-1/2 w-[300vw] h-[300vh] min-w-[300vw] min-h-[300vh] -translate-x-1/2 -translate-y-1/2"
                 allow="autoplay; encrypted-media"
@@ -184,7 +203,7 @@ function HeroSection({ movies }: HeroSectionProps) {
       {currentVideoKey && (
         <button
           className="hidden sm:flex absolute right-4 lg:right-8 bottom-32 h-10 w-10 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-white items-center justify-center"
-          onClick={() => setIsMuted(!isMuted)}
+          onClick={toggleMute}
         >
           {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
         </button>

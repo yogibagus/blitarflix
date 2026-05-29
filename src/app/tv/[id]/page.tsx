@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -30,6 +30,7 @@ export default function TVDetailPage() {
   const [showSeasonDropdown, setShowSeasonDropdown] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [showNewContentWarning, setShowNewContentWarning] = useState(false);
   const { tt } = useTranslation();
   
@@ -134,8 +135,20 @@ export default function TVDetailPage() {
     : null;
 
   const trailerUrl = trailer
-    ? `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&loop=1&playlist=${trailer.key}`
+    ? `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=1&enablejsapi=1&controls=0&showinfo=0&rel=0&loop=1&playlist=${trailer.key}&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`
     : null;
+
+  // Toggle mute/unmute via YouTube IFrame API postMessage
+  const toggleMute = useCallback(() => {
+    if (!iframeRef.current?.contentWindow) return;
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
+    const command = newMutedState ? 'mute' : 'unMute';
+    iframeRef.current.contentWindow.postMessage(
+      JSON.stringify({ event: 'command', func: command, args: '' }),
+      '*'
+    );
+  }, [isMuted]);
 
   const handleMyListClick = () => {
     if (!tv) return;
@@ -207,6 +220,7 @@ export default function TVDetailPage() {
         <div className="absolute inset-0 overflow-hidden">
           {isVideoPlaying && trailerUrl ? (
             <iframe
+              ref={iframeRef}
               src={trailerUrl}
               className="absolute top-1/2 left-1/2 w-[300vw] h-[300vh] min-w-[300vw] min-h-[300vh] -translate-x-1/2 -translate-y-1/2"
               allow="autoplay; encrypted-media"
@@ -333,7 +347,7 @@ export default function TVDetailPage() {
           {isVideoPlaying && trailerUrl && (
             <button
               className="absolute right-4 sm:right-8 bottom-4 sm:bottom-8 h-11 w-11 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-white flex items-center justify-center backdrop-blur-sm"
-              onClick={() => setIsMuted(!isMuted)}
+              onClick={toggleMute}
             >
               {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
             </button>
