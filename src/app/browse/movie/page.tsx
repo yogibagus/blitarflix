@@ -8,36 +8,7 @@ import { Play, Loader2 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { getImageUrl, TMDBMovie } from '@/lib/tmdb';
 import { SkeletonGrid } from '@/components/skeletons/SkeletonGrid';
-
-const PLATFORMS = [
-  { id: 'all', name: 'All Platforms' },
-  { id: 'netflix', name: 'Netflix' },
-  { id: 'prime', name: 'Prime Video' },
-  { id: 'disney', name: 'Disney+' },
-  { id: 'hbo', name: 'HBO Max' },
-  { id: 'apple', name: 'Apple TV+' },
-  { id: 'paramount', name: 'Paramount+' },
-];
-
-const GENRES = [
-  { id: 'all', name: 'All Genres' },
-  { id: 28, name: 'Action' },
-  { id: 12, name: 'Adventure' },
-  { id: 16, name: 'Anime' },
-  { id: 35, name: 'Comedy' },
-  { id: 80, name: 'Crime' },
-  { id: 99, name: 'Documentary' },
-  { id: 18, name: 'Drama' },
-  { id: 10751, name: 'Family' },
-  { id: 14, name: 'Fantasy' },
-  { id: 27, name: 'Horror' },
-  { id: 9648, name: 'Mystery' },
-  { id: 10749, name: 'Romance' },
-  { id: 878, name: 'Sci-Fi' },
-  { id: 53, name: 'Thriller' },
-  { id: 10752, name: 'War' },
-  { id: 37, name: 'Western' },
-];
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 const platformGenreMap: Record<string, number> = {
   netflix: 35,
@@ -52,7 +23,37 @@ function MovieBrowsePageContent() {
   const searchParams = useSearchParams();
   const platformParam = searchParams.get('platform') || 'all';
   const genreParam = searchParams.get('genre') || 'all';
-  
+  const { tt } = useTranslation();
+
+  const PLATFORMS = [
+    { id: 'all', name: tt('platforms.allPlatforms') },
+    { id: 'netflix', name: tt('platforms.netflix') },
+    { id: 'prime', name: tt('platforms.prime') },
+    { id: 'disney', name: tt('platforms.disney') },
+    { id: 'hbo', name: tt('platforms.hbo') },
+    { id: 'apple', name: tt('platforms.apple') },
+    { id: 'paramount', name: tt('platforms.paramount') },
+  ];
+
+  const GENRES = [
+    { id: 'all', name: tt('genres.allGenres') },
+    { id: 28, name: tt('genres.action') },
+    { id: 12, name: tt('genres.adventure') },
+    { id: 16, name: tt('genres.animation') },
+    { id: 35, name: tt('genres.comedy') },
+    { id: 80, name: tt('genres.crime') },
+    { id: 99, name: tt('genres.documentary') },
+    { id: 18, name: tt('genres.drama') },
+    { id: 10751, name: tt('genres.family') },
+    { id: 14, name: tt('genres.fantasy') },
+    { id: 27, name: tt('genres.horror') },
+    { id: 9648, name: tt('genres.mystery') },
+    { id: 10749, name: tt('genres.romance') },
+    { id: 878, name: tt('genres.sciFi') },
+    { id: 53, name: tt('genres.thriller') },
+    { id: 10752, name: tt('genres.war') },
+    { id: 37, name: tt('genres.western') },
+  ];
   const [activePlatform, setActivePlatform] = useState(platformParam);
   const [activeGenre, setActiveGenre] = useState(genreParam);
   const [movies, setMovies] = useState<TMDBMovie[]>([]);
@@ -208,17 +209,17 @@ function MovieBrowsePageContent() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
-              {isSearching ? `Search: "${searchQuery}"` : 'Movies'}
+              {isSearching ? `${tt('search.search')}: "${searchQuery}"` : tt('browse.movies')}
             </h1>
             <p className="text-zinc-400 text-sm">
-              {isSearching ? 'Search results' : `${getPlatformName()} • ${getGenreName()}`}
+              {isSearching ? tt('search.resultsFor') : `${getPlatformName()} • ${getGenreName()}`}
             </p>
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="lg:hidden px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
           >
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
+            {showFilters ? tt('browse.hideFilters') : tt('browse.showFilters')}
           </button>
         </div>
 
@@ -227,7 +228,7 @@ function MovieBrowsePageContent() {
           <div className={`${showFilters ? 'block' : 'hidden'} lg:block mb-6`}>
             {/* Platform Filters */}
             <div className="mb-4">
-              <h3 className="text-sm font-semibold text-white mb-2">Platform</h3>
+              <h3 className="text-sm font-semibold text-white mb-2">{tt('sections.platform')}</h3>
               <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 -webkit-overflow-scrolling-touch">
                 {PLATFORMS.map((platform) => (
                   <button
@@ -247,7 +248,7 @@ function MovieBrowsePageContent() {
 
             {/* Genre Filters */}
             <div>
-              <h3 className="text-sm font-semibold text-white mb-2">Genre</h3>
+              <h3 className="text-sm font-semibold text-white mb-2">{tt('sections.genre')}</h3>
               <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 -webkit-overflow-scrolling-touch">
                 {GENRES.map((genre) => (
                   <button
@@ -271,7 +272,7 @@ function MovieBrowsePageContent() {
           <SkeletonGrid count={12} showFilterPlaceholders={!isSearching} />
         ) : movies.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-zinc-400 text-lg">No movies found</p>
+            <p className="text-zinc-400 text-lg">{tt('browse.noMoviesFound')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4">
@@ -284,7 +285,7 @@ function MovieBrowsePageContent() {
         <div ref={loadMoreRef} className="flex items-center justify-center py-8">
           {loadingMore && <Loader2 className="h-6 w-6 animate-spin text-red-500" />}
           {page >= totalPages && movies.length > 0 && (
-            <p className="text-zinc-500 text-sm">No more movies</p>
+            <p className="text-zinc-500 text-sm">{tt('browse.noMoreMovies')}</p>
           )}
         </div>
       </main>
@@ -292,7 +293,7 @@ function MovieBrowsePageContent() {
       <footer className="bg-zinc-900 border-t border-zinc-800 mt-auto py-6">
         <div className="text-center px-4">
           <h3 className="text-lg font-bold text-red-600 mb-2">BlitarFlix</h3>
-          <p className="text-zinc-500 text-xs">This site does not store any files.</p>
+          <p className="text-zinc-500 text-xs">{tt('footer.disclaimer')}</p>
         </div>
       </footer>
     </div>
@@ -309,13 +310,14 @@ export default function MovieBrowsePage() {
 
 function MovieCard({ movie }: { movie: TMDBMovie }) {
   const [imageError, setImageError] = useState(false);
+  const { tt } = useTranslation();
 
   const posterUrl = movie.poster_path
     ? getImageUrl(movie.poster_path, 'poster', 'medium')
     : null;
 
-  const title = movie.title || 'Untitled';
-  const releaseYear = movie.release_date?.split('-')[0] || 'N/A';
+  const title = movie.title || tt('card.untitled');
+  const releaseYear = movie.release_date?.split('-')[0] || tt('card.na');
 
   return (
     <Link href={`/movie/${movie.id}`}>
@@ -338,7 +340,7 @@ function MovieCard({ movie }: { movie: TMDBMovie }) {
 
           <div className="absolute top-2 left-2 z-10">
             <span className="text-[10px] sm:text-xs font-medium px-1.5 py-0.5 rounded bg-red-600 text-white">
-              Movie
+              {tt('card.movie')}
             </span>
           </div>
 

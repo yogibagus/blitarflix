@@ -6,36 +6,7 @@ import Link from 'next/link';
 import { Play, Loader2 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { getImageUrl, TMDBMovie } from '@/lib/tmdb';
-
-const GENRE_NAMES: Record<string, string> = {
-  'all': 'All',
-  '28': 'Action',
-  '12': 'Adventure',
-  '16': 'Animation',
-  '35': 'Comedy',
-  '80': 'Crime',
-  '99': 'Documentary',
-  '18': 'Drama',
-  '10751': 'Family',
-  '14': 'Fantasy',
-  '27': 'Horror',
-  '9648': 'Mystery',
-  '10749': 'Romance',
-  '878': 'Sci-Fi',
-  '53': 'Thriller',
-  '10752': 'War',
-  '37': 'Western',
-};
-
-const PLATFORM_NAMES: Record<string, string> = {
-  'all': 'All Platforms',
-  'netflix': 'Netflix',
-  'prime': 'Prime Video',
-  'disney': 'Disney+',
-  'hbo': 'HBO Max',
-  'apple': 'Apple TV+',
-  'paramount': 'Paramount+',
-};
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 export default function GenreBrowsePage({ params }: { params: { genreId: string } }) {
   const [genreId, setGenreId] = useState<string>(params.genreId);
@@ -46,6 +17,27 @@ export default function GenreBrowsePage({ params }: { params: { genreId: string 
   const [loadingMore, setLoadingMore] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const { tt } = useTranslation();
+
+  const GENRE_NAMES: Record<string, string> = {
+    'all': tt('genres.all'),
+    '28': tt('genres.action'),
+    '12': tt('genres.adventure'),
+    '16': tt('genres.animation'),
+    '35': tt('genres.comedy'),
+    '80': tt('genres.crime'),
+    '99': tt('genres.documentary'),
+    '18': tt('genres.drama'),
+    '10751': tt('genres.family'),
+    '14': tt('genres.fantasy'),
+    '27': tt('genres.horror'),
+    '9648': tt('genres.mystery'),
+    '10749': tt('genres.romance'),
+    '878': tt('genres.sciFi'),
+    '53': tt('genres.thriller'),
+    '10752': tt('genres.war'),
+    '37': tt('genres.western'),
+  };
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -113,7 +105,7 @@ export default function GenreBrowsePage({ params }: { params: { genreId: string 
     return () => observer.disconnect();
   }, [page, totalPages, loadingMore, loading]);
 
-  const genreName = GENRE_NAMES[genreId] || 'Movies';
+  const genreName = GENRE_NAMES[genreId] || tt('browse.movies');
 
   return (
     <div className="min-h-screen flex flex-col bg-zinc-950">
@@ -121,7 +113,7 @@ export default function GenreBrowsePage({ params }: { params: { genreId: string 
 
       <main className="flex-1 pt-20 sm:pt-24 px-3 sm:px-8 lg:px-16 py-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-white mb-6">
-          {genreName} Movies
+          {genreName} {tt('browse.movies')}
         </h1>
 
         {loading ? (
@@ -130,7 +122,7 @@ export default function GenreBrowsePage({ params }: { params: { genreId: string 
           </div>
         ) : movies.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-zinc-400 text-lg">No movies found</p>
+            <p className="text-zinc-400 text-lg">{tt('browse.noMoviesFound')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4">
@@ -143,7 +135,7 @@ export default function GenreBrowsePage({ params }: { params: { genreId: string 
         <div ref={loadMoreRef} className="flex items-center justify-center py-8">
           {loadingMore && <Loader2 className="h-6 w-6 animate-spin text-red-500" />}
           {page >= totalPages && movies.length > 0 && (
-            <p className="text-zinc-500 text-sm">No more movies</p>
+            <p className="text-zinc-500 text-sm">{tt('browse.noMoreMovies')}</p>
           )}
         </div>
       </main>
@@ -151,7 +143,7 @@ export default function GenreBrowsePage({ params }: { params: { genreId: string 
       <footer className="bg-zinc-900 border-t border-zinc-800 mt-auto py-6">
         <div className="text-center px-4">
           <h3 className="text-lg font-bold text-red-600 mb-2">BlitarFlix</h3>
-          <p className="text-zinc-500 text-xs">This site does not store any files.</p>
+          <p className="text-zinc-500 text-xs">{tt('footer.disclaimer')}</p>
         </div>
       </footer>
     </div>
@@ -160,13 +152,14 @@ export default function GenreBrowsePage({ params }: { params: { genreId: string 
 
 function MovieCard({ movie }: { movie: TMDBMovie }) {
   const [imageError, setImageError] = useState(false);
+  const { tt } = useTranslation();
 
   const posterUrl = movie.poster_path
     ? getImageUrl(movie.poster_path, 'poster', 'medium')
     : null;
 
-  const title = movie.title || 'Untitled';
-  const releaseYear = movie.release_date?.split('-')[0] || 'N/A';
+  const title = movie.title || tt('card.untitled');
+  const releaseYear = movie.release_date?.split('-')[0] || tt('card.na');
 
   return (
     <Link href={`/movie/${movie.id}`}>
@@ -189,7 +182,7 @@ function MovieCard({ movie }: { movie: TMDBMovie }) {
 
           <div className="absolute top-2 left-2 z-10">
             <span className="text-[10px] sm:text-xs font-medium px-1.5 py-0.5 rounded bg-red-600 text-white">
-              Movie
+              {tt('card.movie')}
             </span>
           </div>
 

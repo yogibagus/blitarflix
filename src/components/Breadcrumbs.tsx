@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 interface Breadcrumb {
   name: string;
@@ -11,8 +14,9 @@ interface BreadcrumbsProps {
 }
 
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
+  const { tt } = useTranslation();
   const allItems = [
-    { name: 'Home', href: '/' },
+    { name: tt('breadcrumbs.home'), href: '/' },
     ...items,
   ];
 

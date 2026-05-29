@@ -11,6 +11,7 @@ import { SecureVideoPlayer } from '@/components/SecureVideoPlayer';
 import { SkeletonMovieDetail } from '@/components/skeletons/SkeletonMovieDetail';
 import { useMyList } from '@/hooks/useMyList';
 import { getImageUrl, TMDBMovieDetails, TMDBVideo } from '@/lib/tmdb';
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 export default function MovieDetailPage() {
   const params = useParams();
@@ -25,6 +26,7 @@ export default function MovieDetailPage() {
   const [isMuted, setIsMuted] = useState(true);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [showNewContentWarning, setShowNewContentWarning] = useState(false);
+  const { tt } = useTranslation();
   
   const { isInList, toggleItem } = useMyList();
 
@@ -51,7 +53,7 @@ export default function MovieDetailPage() {
         setLoading(true);
         const res = await fetch(`/api/movies/${movieId}`);
         if (!res.ok) {
-          throw new Error('Movie not found');
+          throw new Error(tt('detail.movieNotFound'));
         }
         const data = await res.json();
         setMovie(data);
@@ -64,7 +66,7 @@ export default function MovieDetailPage() {
           }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load movie');
+        setError(err instanceof Error ? err.message : tt('detail.failedToLoad'));
       } finally {
         setLoading(false);
       }
@@ -123,13 +125,13 @@ export default function MovieDetailPage() {
         <div className="flex-1 flex items-center justify-center pt-14 sm:pt-16 px-4">
           <div className="text-center">
             <h1 className="text-xl sm:text-2xl font-bold text-white mb-4">
-              {error || 'Movie not found'}
+              {error || tt('detail.movieNotFound')}
             </h1>
             <button
               onClick={() => router.push('/')}
               className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg text-sm sm:text-base"
             >
-              Go Back Home
+              {tt('detail.goBackHome')}
             </button>
           </div>
         </div>
@@ -202,7 +204,7 @@ export default function MovieDetailPage() {
                     />
                   ) : (
                     <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center">
-                      <span className="text-zinc-400">No Image</span>
+                      <span className="text-zinc-400">{tt('detail.noImage')}</span>
                     </div>
                   )}
                 </div>
@@ -250,7 +252,7 @@ export default function MovieDetailPage() {
                     className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-sm sm:text-base touch-manipulation shadow-lg"
                   >
                     <Play className="h-5 w-5 sm:h-6 sm:w-6 fill-current" />
-                    Play Now
+                    {tt('detail.playNow')}
                   </button>
                   <button 
                     onClick={handleMyListClick}
@@ -263,12 +265,12 @@ export default function MovieDetailPage() {
                     {isInMyList ? (
                       <>
                         <Check className="h-5 w-5 sm:h-6 sm:w-6" />
-                        <span className="hidden sm:inline">In My List</span>
+                        <span className="hidden sm:inline">{tt('detail.inMyList')}</span>
                       </>
                     ) : (
                       <>
                         <Plus className="h-5 w-5 sm:h-6 sm:w-6" />
-                        <span className="hidden sm:inline">My List</span>
+                        <span className="hidden sm:inline">{tt('detail.myList')}</span>
                       </>
                     )}
                   </button>
@@ -281,7 +283,7 @@ export default function MovieDetailPage() {
                 )}
 
                 <p className="text-zinc-300 leading-relaxed max-w-3xl text-sm sm:text-base lg:text-lg line-clamp-3 lg:line-clamp-4">
-                  {movie.overview || 'No overview available.'}
+                  {movie.overview || tt('detail.noOverview')}
                 </p>
               </div>
             </div>
@@ -302,7 +304,7 @@ export default function MovieDetailPage() {
       {/* Cast */}
       {movie.credits?.cast && movie.credits.cast.length > 0 && (
         <section className="px-3 sm:px-8 lg:px-16 py-6 sm:py-8 bg-zinc-950">
-          <h2 className="text-lg sm:text-xl font-bold text-white mb-4">Cast</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-white mb-4">{tt('sections.cast')}</h2>
           <div className="flex flex-wrap gap-2 sm:gap-3">
             {movie.credits.cast.slice(0, 12).map((person) => (
               <div 
@@ -338,7 +340,7 @@ export default function MovieDetailPage() {
       {/* Similar Movies */}
       {movie.similar?.results && movie.similar.results.length > 0 && (
         <section className="px-3 sm:px-8 lg:px-16 py-6 sm:py-8 bg-zinc-950">
-          <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Similar Movies</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">{tt('detail.similarMovies')}</h2>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4">
             {movie.similar.results.slice(0, 6).map((similarMovie) => (
               <Link
@@ -385,17 +387,17 @@ export default function MovieDetailPage() {
               <div className="h-10 w-10 rounded-full bg-yellow-600/20 flex items-center justify-center flex-shrink-0">
                 <AlertTriangle className="h-5 w-5 text-yellow-500" />
               </div>
-              <h3 className="text-white text-lg font-semibold">Recently Released</h3>
+              <h3 className="text-white text-lg font-semibold">{tt('detail.recentlyReleased')}</h3>
             </div>
             <p className="text-zinc-400 text-sm mb-6">
-              This movie was recently released. The video may not be available yet on the server, or the quality may be lower than expected. Do you want to continue?
+              {tt('detail.recentlyReleasedMsg')}
             </p>
             <div className="flex gap-3">
               <button
                 className="flex-1 px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium transition-colors touch-manipulation"
                 onClick={() => setShowNewContentWarning(false)}
               >
-                Cancel
+                {tt('detail.cancel')}
               </button>
               <button
                 className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors touch-manipulation"
@@ -404,7 +406,7 @@ export default function MovieDetailPage() {
                   setIsPlayerVisible(true);
                 }}
               >
-                Continue Anyway
+                {tt('detail.continueAnyway')}
               </button>
             </div>
           </div>
@@ -415,7 +417,7 @@ export default function MovieDetailPage() {
         <div className="px-4 sm:px-8 lg:px-16 text-center">
           <h3 className="text-lg sm:text-xl font-bold text-red-600 mb-2 sm:mb-3">BlitarFlix</h3>
           <p className="text-zinc-500 text-xs sm:text-sm max-w-xl mx-auto mb-2 sm:mb-3 px-4">
-            This site does not store any files on our server, we only linked to the media which is hosted on 3rd party services.
+            {tt('footer.disclaimerFull')}
           </p>
           <a href="mailto:contact@blitarflix.com" className="text-zinc-400 text-xs sm:text-sm hover:text-red-500 transition-colors">
             contact@blitarflix.com

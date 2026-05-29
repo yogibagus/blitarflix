@@ -6,16 +6,7 @@ import Link from 'next/link';
 import { Play, Loader2 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { getImageUrl, TMDBMovie } from '@/lib/tmdb';
-
-const PLATFORM_NAMES: Record<string, string> = {
-  'all': 'All Platforms',
-  'netflix': 'Netflix',
-  'prime': 'Prime Video',
-  'disney': 'Disney+',
-  'hbo': 'HBO Max',
-  'apple': 'Apple TV+',
-  'paramount': 'Paramount+',
-};
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 export default function PlatformBrowsePage({ params }: { params: { platformId: string } }) {
   const [platformId, setPlatformId] = useState<string>(params.platformId);
@@ -26,6 +17,17 @@ export default function PlatformBrowsePage({ params }: { params: { platformId: s
   const [loadingMore, setLoadingMore] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const { tt } = useTranslation();
+
+  const PLATFORM_NAMES: Record<string, string> = {
+    'all': tt('platforms.allPlatforms'),
+    'netflix': tt('platforms.netflix'),
+    'prime': tt('platforms.prime'),
+    'disney': tt('platforms.disney'),
+    'hbo': tt('platforms.hbo'),
+    'apple': tt('platforms.apple'),
+    'paramount': tt('platforms.paramount'),
+  };
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -94,7 +96,7 @@ export default function PlatformBrowsePage({ params }: { params: { platformId: s
     return () => observer.disconnect();
   }, [page, totalPages, loadingMore, loading]);
 
-  const platformName = PLATFORM_NAMES[platformId] || 'Movies';
+  const platformName = PLATFORM_NAMES[platformId] || tt('browse.movies');
 
   return (
     <div className="min-h-screen flex flex-col bg-zinc-950">
@@ -111,7 +113,7 @@ export default function PlatformBrowsePage({ params }: { params: { platformId: s
           </div>
         ) : movies.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-zinc-400 text-lg">No movies found</p>
+            <p className="text-zinc-400 text-lg">{tt('browse.noMoviesFound')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4">
@@ -124,7 +126,7 @@ export default function PlatformBrowsePage({ params }: { params: { platformId: s
         <div ref={loadMoreRef} className="flex items-center justify-center py-8">
           {loadingMore && <Loader2 className="h-6 w-6 animate-spin text-red-500" />}
           {page >= totalPages && movies.length > 0 && (
-            <p className="text-zinc-500 text-sm">No more movies to load</p>
+            <p className="text-zinc-500 text-sm">{tt('browse.noMoreMovies')}</p>
           )}
         </div>
       </main>
@@ -132,7 +134,7 @@ export default function PlatformBrowsePage({ params }: { params: { platformId: s
       <footer className="bg-zinc-900 border-t border-zinc-800 mt-auto py-6">
         <div className="text-center px-4">
           <h3 className="text-lg font-bold text-red-600 mb-2">BlitarFlix</h3>
-          <p className="text-zinc-500 text-xs">This site does not store any files on our server.</p>
+          <p className="text-zinc-500 text-xs">{tt('footer.disclaimer')}</p>
         </div>
       </footer>
     </div>
@@ -141,13 +143,14 @@ export default function PlatformBrowsePage({ params }: { params: { platformId: s
 
 function MovieCard({ movie }: { movie: TMDBMovie }) {
   const [imageError, setImageError] = useState(false);
+  const { tt } = useTranslation();
 
   const posterUrl = movie.poster_path
     ? getImageUrl(movie.poster_path, 'poster', 'medium')
     : null;
 
-  const title = movie.title || 'Untitled';
-  const releaseYear = movie.release_date?.split('-')[0] || 'N/A';
+  const title = movie.title || tt('card.untitled');
+  const releaseYear = movie.release_date?.split('-')[0] || tt('card.na');
 
   return (
     <Link href={`/movie/${movie.id}`}>
@@ -170,7 +173,7 @@ function MovieCard({ movie }: { movie: TMDBMovie }) {
 
           <div className="absolute top-2 left-2 z-10">
             <span className="text-[10px] sm:text-xs font-medium px-1.5 py-0.5 rounded bg-red-600 text-white">
-              Movie
+              {tt('card.movie')}
             </span>
           </div>
 

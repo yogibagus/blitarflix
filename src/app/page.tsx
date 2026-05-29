@@ -17,6 +17,7 @@ import { getImageUrl, TMDBMovie } from '@/lib/tmdb';
 import { Header } from '@/components/Header';
 import { SkeletonHero } from '@/components/skeletons/SkeletonHero';
 import { SkeletonRow } from '@/components/skeletons/SkeletonRow';
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 // ============ HERO SECTION COMPONENT ============
 interface HeroSectionProps {
@@ -28,6 +29,7 @@ function HeroSection({ movies }: HeroSectionProps) {
   const [isMuted, setIsMuted] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [videoKeys, setVideoKeys] = useState<Record<number, string | null>>({});
+  const { tt } = useTranslation();
 
   const featuredMovies = movies.slice(0, 5);
   const currentMovie = featuredMovies[currentIndex];
@@ -144,10 +146,10 @@ function HeroSection({ movies }: HeroSectionProps) {
               
               <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 flex-wrap">
                 <span className="bg-green-500 text-white text-xs px-2 py-1 rounded">
-                  {Math.round(currentMovie.vote_average * 10)}% Match
+                  {Math.round(currentMovie.vote_average * 10)}% {tt('hero.match')}
                 </span>
                 <span className="text-white/80 font-medium text-sm sm:text-base">
-                  {currentMovie.release_date?.split('-')[0] || 'N/A'}
+                  {currentMovie.release_date?.split('-')[0] || tt('card.na')}
                 </span>
                 <span className="text-white/60 border border-white/40 text-xs px-2 py-1 rounded">
                   HD
@@ -162,14 +164,14 @@ function HeroSection({ movies }: HeroSectionProps) {
                 <Link href={`/movie/${currentMovie.id}`}>
                   <button className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-sm sm:text-base touch-manipulation">
                     <Play className="h-4 w-4 sm:h-5 sm:w-5 fill-current" />
-                    <span>Play</span>
+                    <span>{tt('hero.play')}</span>
                   </button>
                 </Link>
                 <Link href={`/movie/${currentMovie.id}`}>
                   <button className="flex items-center gap-2 bg-zinc-700/80 hover:bg-zinc-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium border border-zinc-600 text-sm sm:text-base touch-manipulation">
                     <Info className="h-4 w-4 sm:h-5 sm:w-5" />
-                    <span className="hidden sm:inline">More Info</span>
-                    <span className="sm:hidden">Info</span>
+                    <span className="hidden sm:inline">{tt('hero.moreInfo')}</span>
+                    <span className="sm:hidden">{tt('hero.info')}</span>
                   </button>
                 </Link>
               </div>
@@ -245,14 +247,15 @@ interface MovieCardProps {
 
 function MovieCard({ movie, mediaType = 'movie' }: MovieCardProps) {
   const [imageError, setImageError] = useState(false);
+  const { tt } = useTranslation();
 
   const posterUrl = movie.poster_path
     ? getImageUrl(movie.poster_path, 'poster', 'medium')
     : null;
 
-  const title = movie.title || (movie as { name?: string }).name || 'Untitled';
+  const title = movie.title || (movie as { name?: string }).name || tt('card.untitled');
   const releaseYear = movie.release_date?.split('-')[0] || 
-    (movie as { first_air_date?: string }).first_air_date?.split('-')[0] || 'N/A';
+    (movie as { first_air_date?: string }).first_air_date?.split('-')[0] || tt('card.na');
   const detailUrl = mediaType === 'tv' ? `/tv/${movie.id}` : `/movie/${movie.id}`;
   const rating = movie.vote_average || 0;
 
@@ -282,7 +285,7 @@ function MovieCard({ movie, mediaType = 'movie' }: MovieCardProps) {
                 ? 'bg-blue-600 text-white' 
                 : 'bg-red-600 text-white'
             }`}>
-              {mediaType === 'tv' ? 'TV' : 'Movie'}
+              {mediaType === 'tv' ? tt('card.tv') : tt('card.movie')}
             </span>
           </div>
 
@@ -316,6 +319,7 @@ function MovieRow({ title, movies, seeMoreLink }: { title: string; movies: TMDBM
   const rowRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
+  const { tt } = useTranslation();
 
   const checkArrows = () => {
     if (rowRef.current) {
@@ -351,7 +355,7 @@ function MovieRow({ title, movies, seeMoreLink }: { title: string; movies: TMDBM
             href={seeMoreLink}
             className="text-sm sm:text-base text-red-500 hover:text-red-400 font-medium transition-colors"
           >
-            See More →
+            {tt('sections.seeMore')}
           </Link>
         )}
       </div>
@@ -394,6 +398,7 @@ function MovieRow({ title, movies, seeMoreLink }: { title: string; movies: TMDBM
 
 // ============ TRENDING TYPE FILTER COMPONENT ============
 function TrendingTypeFilter({ activeType, onTypeChange }: { activeType: 'movie' | 'tv'; onTypeChange: (type: 'movie' | 'tv') => void }) {
+  const { tt } = useTranslation();
   return (
     <div className="flex items-center gap-1 bg-zinc-800 p-1 rounded-lg w-fit">
       <button
@@ -405,7 +410,7 @@ function TrendingTypeFilter({ activeType, onTypeChange }: { activeType: 'movie' 
             : 'text-gray-400 hover:text-white'
         }`}
       >
-        Movies
+        {tt('trending.movies')}
       </button>
       <button
         type="button"
@@ -416,7 +421,7 @@ function TrendingTypeFilter({ activeType, onTypeChange }: { activeType: 'movie' 
             : 'text-gray-400 hover:text-white'
         }`}
       >
-        TV Shows
+        {tt('trending.tvShows')}
       </button>
     </div>
   );
@@ -489,19 +494,20 @@ function TrendingRow({ movies, mediaType }: { movies: TMDBMovie[]; mediaType: 'm
 
 // ============ PLATFORM FILTER COMPONENT ============
 function PlatformFilter({ activePlatform, onPlatformChange }: { activePlatform: string; onPlatformChange: (platform: string) => void }) {
+  const { tt } = useTranslation();
   const platforms = [
-    { id: 'all', name: 'All' },
-    { id: 'netflix', name: 'Netflix' },
-    { id: 'prime', name: 'Prime Video' },
-    { id: 'disney', name: 'Disney+' },
-    { id: 'hbo', name: 'HBO Max' },
-    { id: 'apple', name: 'Apple TV+' },
-    { id: 'paramount', name: 'Paramount+' },
+    { id: 'all', name: tt('platforms.all') },
+    { id: 'netflix', name: tt('platforms.netflix') },
+    { id: 'prime', name: tt('platforms.prime') },
+    { id: 'disney', name: tt('platforms.disney') },
+    { id: 'hbo', name: tt('platforms.hbo') },
+    { id: 'apple', name: tt('platforms.apple') },
+    { id: 'paramount', name: tt('platforms.paramount') },
   ];
 
   return (
     <div className="py-3 sm:py-4 px-3 sm:px-8 lg:px-16">
-      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 sm:mb-4">Platform</h2>
+      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 sm:mb-4">{tt('sections.platform')}</h2>
       
       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 -webkit-overflow-scrolling-touch">
         {platforms.map((platform) => (
@@ -525,29 +531,30 @@ function PlatformFilter({ activePlatform, onPlatformChange }: { activePlatform: 
 
 // ============ GENRE FILTER COMPONENT ============
 function GenreFilter({ activeGenre, onGenreChange }: { activeGenre: number | null; onGenreChange: (genreId: number | null) => void }) {
+  const { tt } = useTranslation();
   const genres = [
-    { id: null, name: 'All' },
-    { id: 28, name: 'Action' },
-    { id: 12, name: 'Adventure' },
-    { id: 16, name: 'Animation' },
-    { id: 35, name: 'Comedy' },
-    { id: 80, name: 'Crime' },
-    { id: 99, name: 'Documentary' },
-    { id: 18, name: 'Drama' },
-    { id: 10751, name: 'Family' },
-    { id: 14, name: 'Fantasy' },
-    { id: 27, name: 'Horror' },
-    { id: 9648, name: 'Mystery' },
-    { id: 10749, name: 'Romance' },
-    { id: 878, name: 'Sci-Fi' },
-    { id: 53, name: 'Thriller' },
-    { id: 10752, name: 'War' },
-    { id: 37, name: 'Western' },
+    { id: null, name: tt('genres.all') },
+    { id: 28, name: tt('genres.action') },
+    { id: 12, name: tt('genres.adventure') },
+    { id: 16, name: tt('genres.animation') },
+    { id: 35, name: tt('genres.comedy') },
+    { id: 80, name: tt('genres.crime') },
+    { id: 99, name: tt('genres.documentary') },
+    { id: 18, name: tt('genres.drama') },
+    { id: 10751, name: tt('genres.family') },
+    { id: 14, name: tt('genres.fantasy') },
+    { id: 27, name: tt('genres.horror') },
+    { id: 9648, name: tt('genres.mystery') },
+    { id: 10749, name: tt('genres.romance') },
+    { id: 878, name: tt('genres.sciFi') },
+    { id: 53, name: tt('genres.thriller') },
+    { id: 10752, name: tt('genres.war') },
+    { id: 37, name: tt('genres.western') },
   ];
 
   return (
     <div className="py-3 sm:py-4 px-3 sm:px-8 lg:px-16">
-      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 sm:mb-4">Genre</h2>
+      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-3 sm:mb-4">{tt('sections.genre')}</h2>
       
       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 -webkit-overflow-scrolling-touch">
         {genres.map((genre) => (
@@ -580,6 +587,7 @@ interface SearchResultsProps {
 }
 
 function SearchResults({ movies, query, searchType, onTypeChange, loadingMore, loadMoreRef }: SearchResultsProps) {
+  const { tt } = useTranslation();
   if (!query) return null;
 
   // Helper function to detect media type
@@ -594,7 +602,7 @@ function SearchResults({ movies, query, searchType, onTypeChange, loadingMore, l
     <div className="min-h-[60vh] px-3 sm:px-8 lg:px-16 py-6 sm:py-8 pt-20 sm:pt-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3">
         <h2 className="text-xl sm:text-2xl font-bold text-white">
-          Search results for "{query}"
+          {tt('search.resultsFor')} "{query}"
         </h2>
         
         {/* Search Type Filter */}
@@ -608,7 +616,7 @@ function SearchResults({ movies, query, searchType, onTypeChange, loadingMore, l
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            All
+            {tt('search.all')}
           </button>
           <button
             type="button"
@@ -619,7 +627,7 @@ function SearchResults({ movies, query, searchType, onTypeChange, loadingMore, l
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            Movies
+            {tt('search.movies')}
           </button>
           <button
             type="button"
@@ -630,15 +638,15 @@ function SearchResults({ movies, query, searchType, onTypeChange, loadingMore, l
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            TV Shows
+            {tt('search.tvShows')}
           </button>
         </div>
       </div>
       
       {movies.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-400 text-base sm:text-lg">No results found for "{query}"</p>
-          <p className="text-gray-500 text-sm mt-2">Try searching with different keywords</p>
+          <p className="text-gray-400 text-base sm:text-lg">{tt('search.noResults')} "{query}"</p>
+          <p className="text-gray-500 text-sm mt-2">{tt('search.tryDifferent')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4">
@@ -667,12 +675,13 @@ function SearchResults({ movies, query, searchType, onTypeChange, loadingMore, l
 
 // ============ FOOTER COMPONENT ============
 function Footer() {
+  const { tt } = useTranslation();
   return (
     <footer className="bg-zinc-900 border-t border-zinc-800 mt-auto py-6 sm:py-8">
       <div className="px-4 sm:px-8 lg:px-16 text-center">
         <h3 className="text-lg sm:text-xl font-bold text-red-600 mb-2 sm:mb-3">BlitarFlix</h3>
         <p className="text-gray-500 text-xs sm:text-sm max-w-xl mx-auto mb-2 sm:mb-3 px-4">
-          This site does not store any files on our server, we only linked to the media which is hosted on 3rd party services.
+          {tt('footer.disclaimer')}
         </p>
         <a href="mailto:contact@blitarflix.com" className="text-gray-400 text-xs sm:text-sm hover:text-red-500 transition-colors">
           contact@blitarflix.com
@@ -684,6 +693,7 @@ function Footer() {
 
 // ============ MAIN HOME PAGE ============
 export default function Home() {
+  const { tt } = useTranslation();
   const [trendingMovies, setTrendingMovies] = useState<TMDBMovie[]>([]);
   const [trendingTV, setTrendingTV] = useState<TMDBMovie[]>([]);
   const [top10Today, setTop10Today] = useState<TMDBMovie[]>([]);
@@ -890,26 +900,26 @@ export default function Home() {
 
   const getPlatformTitle = (platform: string) => {
     const names: Record<string, string> = {
-      all: 'All Platforms',
-      netflix: 'Netflix',
-      prime: 'Prime Video',
-      disney: 'Disney+',
-      hbo: 'HBO Max',
-      apple: 'Apple TV+',
-      paramount: 'Paramount+',
+      all: tt('platforms.allPlatforms'),
+      netflix: tt('platforms.netflix'),
+      prime: tt('platforms.prime'),
+      disney: tt('platforms.disney'),
+      hbo: tt('platforms.hbo'),
+      apple: tt('platforms.apple'),
+      paramount: tt('platforms.paramount'),
     };
     return names[platform] || platform;
   };
 
   const getGenreTitle = (genreId: number | null) => {
-    if (!genreId) return 'All Genres';
+    if (!genreId) return tt('genres.allGenres');
     const names: Record<number, string> = {
-      28: 'Action', 12: 'Adventure', 16: 'Animation', 35: 'Comedy', 80: 'Crime',
-      99: 'Documentary', 18: 'Drama', 10751: 'Family', 14: 'Fantasy', 36: 'History',
-      27: 'Horror', 10402: 'Music', 9648: 'Mystery', 10749: 'Romance', 878: 'Sci-Fi',
-      53: 'Thriller', 10752: 'War', 37: 'Western',
+      28: tt('genres.action'), 12: tt('genres.adventure'), 16: tt('genres.animation'), 35: tt('genres.comedy'), 80: tt('genres.crime'),
+      99: tt('genres.documentary'), 18: tt('genres.drama'), 10751: tt('genres.family'), 14: tt('genres.fantasy'), 36: tt('genres.history'),
+      27: tt('genres.horror'), 10402: tt('genres.music'), 9648: tt('genres.mystery'), 10749: tt('genres.romance'), 878: tt('genres.sciFi'),
+      53: tt('genres.thriller'), 10752: tt('genres.war'), 37: tt('genres.western'),
     };
-    return names[genreId] || 'Selected Genre';
+    return names[genreId] || tt('genres.selectedGenre');
   };
 
   return (
@@ -943,12 +953,12 @@ export default function Home() {
             ) : (
               <>
                 {top10Today.length > 0 && (
-                  <MovieRow title="Top 10 Content Today" movies={top10Today} />
+                  <MovieRow title={tt('sections.top10Today')} movies={top10Today} />
                 )}
 
                 <div className="py-3 sm:py-4">
                   <div className="flex items-center justify-between mb-3 sm:mb-4 px-3 sm:px-8 lg:px-16">
-                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">Trending Today</h2>
+                    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">{tt('sections.trendingToday')}</h2>
                     <TrendingTypeFilter 
                       activeType={trendingType} 
                       onTypeChange={setTrendingType} 

@@ -8,31 +8,32 @@ import { Play, Loader2 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { getImageUrl, TMDBTVShow } from '@/lib/tmdb';
 import { SkeletonGrid } from '@/components/skeletons/SkeletonGrid';
-
-const GENRES = [
-  { id: 'all', name: 'All Genres' },
-  { id: 10759, name: 'Action & Adventure' },
-  { id: 16, name: 'Anime' },
-  { id: 35, name: 'Comedy' },
-  { id: 80, name: 'Crime' },
-  { id: 99, name: 'Documentary' },
-  { id: 18, name: 'Drama' },
-  { id: 10751, name: 'Family' },
-  { id: 10762, name: 'Kids' },
-  { id: 9648, name: 'Mystery' },
-  { id: 10763, name: 'News' },
-  { id: 10764, name: 'Reality' },
-  { id: 10765, name: 'Sci-Fi & Fantasy' },
-  { id: 10766, name: 'Soap' },
-  { id: 10767, name: 'Talk' },
-  { id: 10768, name: 'War & Politics' },
-  { id: 37, name: 'Western' },
-];
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 function TVBrowsePageContent() {
   const searchParams = useSearchParams();
   const genreParam = searchParams.get('genre') || 'all';
-  
+  const { tt } = useTranslation();
+
+  const GENRES = [
+    { id: 'all', name: tt('genres.allGenres') },
+    { id: 10759, name: tt('genres.actionAdventure') },
+    { id: 16, name: tt('genres.animation') },
+    { id: 35, name: tt('genres.comedy') },
+    { id: 80, name: tt('genres.crime') },
+    { id: 99, name: tt('genres.documentary') },
+    { id: 18, name: tt('genres.drama') },
+    { id: 10751, name: tt('genres.family') },
+    { id: 10762, name: tt('genres.kids') },
+    { id: 9648, name: tt('genres.mystery') },
+    { id: 10763, name: tt('genres.news') },
+    { id: 10764, name: tt('genres.reality') },
+    { id: 10765, name: tt('genres.sciFiFantasy') },
+    { id: 10766, name: tt('genres.soap') },
+    { id: 10767, name: tt('genres.talk') },
+    { id: 10768, name: tt('genres.warPolitics') },
+    { id: 37, name: tt('genres.western') },
+  ];
   const [activeGenre, setActiveGenre] = useState(genreParam);
   const [tvShows, setTVShows] = useState<TMDBTVShow[]>([]);
   const [page, setPage] = useState(1);
@@ -165,17 +166,17 @@ function TVBrowsePageContent() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
-              {isSearching ? `Search: "${searchQuery}"` : 'TV Shows'}
+              {isSearching ? `${tt('search.search')}: "${searchQuery}"` : tt('browse.tvShows')}
             </h1>
             <p className="text-zinc-400 text-sm">
-              {isSearching ? 'Search results' : getGenreName()}
+              {isSearching ? tt('search.resultsFor') : getGenreName()}
             </p>
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="lg:hidden px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
           >
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
+            {showFilters ? tt('browse.hideFilters') : tt('browse.showFilters')}
           </button>
         </div>
 
@@ -184,7 +185,7 @@ function TVBrowsePageContent() {
           <div className={`${showFilters ? 'block' : 'hidden'} lg:block mb-6`}>
             {/* Genre Filters */}
             <div>
-              <h3 className="text-sm font-semibold text-white mb-2">Genre</h3>
+              <h3 className="text-sm font-semibold text-white mb-2">{tt('sections.genre')}</h3>
               <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 -webkit-overflow-scrolling-touch">
                 {GENRES.map((genre) => (
                   <button
@@ -208,7 +209,7 @@ function TVBrowsePageContent() {
           <SkeletonGrid count={12} showFilterPlaceholders={!isSearching} />
         ) : tvShows.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-zinc-400 text-lg">No TV shows found</p>
+            <p className="text-zinc-400 text-lg">{tt('browse.noTVShowsFound')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4">
@@ -221,7 +222,7 @@ function TVBrowsePageContent() {
         <div ref={loadMoreRef} className="flex items-center justify-center py-8">
           {loadingMore && <Loader2 className="h-6 w-6 animate-spin text-red-500" />}
           {page >= totalPages && tvShows.length > 0 && (
-            <p className="text-zinc-500 text-sm">No more TV shows</p>
+            <p className="text-zinc-500 text-sm">{tt('browse.noMoreTVShows')}</p>
           )}
         </div>
       </main>
@@ -229,7 +230,7 @@ function TVBrowsePageContent() {
       <footer className="bg-zinc-900 border-t border-zinc-800 mt-auto py-6">
         <div className="text-center px-4">
           <h3 className="text-lg font-bold text-red-600 mb-2">BlitarFlix</h3>
-          <p className="text-zinc-500 text-xs">This site does not store any files.</p>
+          <p className="text-zinc-500 text-xs">{tt('footer.disclaimer')}</p>
         </div>
       </footer>
     </div>
@@ -246,13 +247,14 @@ export default function TVBrowsePage() {
 
 function TVCard({ tvShow }: { tvShow: TMDBTVShow }) {
   const [imageError, setImageError] = useState(false);
+  const { tt } = useTranslation();
 
   const posterUrl = tvShow.poster_path
     ? getImageUrl(tvShow.poster_path, 'poster', 'medium')
     : null;
 
-  const title = tvShow.name || 'Untitled';
-  const releaseYear = tvShow.first_air_date?.split('-')[0] || 'N/A';
+  const title = tvShow.name || tt('card.untitled');
+  const releaseYear = tvShow.first_air_date?.split('-')[0] || tt('card.na');
 
   return (
     <Link href={`/tv/${tvShow.id}`}>
@@ -275,7 +277,7 @@ function TVCard({ tvShow }: { tvShow: TMDBTVShow }) {
 
           <div className="absolute top-2 left-2 z-10">
             <span className="text-[10px] sm:text-xs font-medium px-1.5 py-0.5 rounded bg-blue-600 text-white">
-              TV
+              {tt('card.tv')}
             </span>
           </div>
 

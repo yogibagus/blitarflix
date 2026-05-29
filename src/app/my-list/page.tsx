@@ -7,10 +7,12 @@ import { Trash2, Play } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { useMyList, MyListItem } from '@/hooks/useMyList';
 import { getImageUrl } from '@/lib/tmdb';
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 export default function MyListPage() {
   const { myList, isLoaded, removeFromList } = useMyList();
   const [isScrolled, setIsScrolled] = useState(false);
+  const { tt } = useTranslation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,9 +36,9 @@ export default function MyListPage() {
       
       <main className="flex-1 pt-20 sm:pt-24 pb-6 sm:pb-8 px-3 sm:px-8 lg:px-16">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">My List</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">{tt('myList.title')}</h1>
           <p className="text-gray-400 mt-1 sm:mt-2 text-sm sm:text-base">
-            {isLoaded ? `${myList.length} ${myList.length === 1 ? 'item' : 'items'}` : 'Loading...'}
+            {isLoaded ? `${myList.length} ${myList.length === 1 ? 'item' : 'items'}` : tt('browse.loading')}
           </p>
         </div>
 
@@ -49,11 +51,11 @@ export default function MyListPage() {
             <div className="h-20 w-20 rounded-full bg-zinc-800 flex items-center justify-center mb-4">
               <Play className="h-8 w-8 text-gray-400" />
             </div>
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-300 mb-2">Your list is empty</h2>
-            <p className="text-gray-500 mb-6 text-sm sm:text-base">Start adding movies and shows to your list!</p>
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-300 mb-2">{tt('myList.empty')}</h2>
+            <p className="text-gray-500 mb-6 text-sm sm:text-base">{tt('myList.emptyDesc')}</p>
             <Link href="/">
               <button className="bg-red-600 hover:bg-red-700 text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-sm sm:text-base touch-manipulation">
-                Browse Content
+                {tt('notFound.browseMovies')}
               </button>
             </Link>
           </div>
@@ -74,7 +76,7 @@ export default function MyListPage() {
         <div className="px-4 sm:px-8 lg:px-16 text-center">
           <h3 className="text-lg sm:text-xl font-bold text-red-600 mb-2 sm:mb-3">BlitarFlix</h3>
           <p className="text-gray-500 text-xs sm:text-sm max-w-xl mx-auto mb-2 sm:mb-3 px-4">
-            This site does not store any files on our server, we only linked to the media which is hosted on 3rd party services.
+            {tt('footer.disclaimer')}
           </p>
           <a href="mailto:contact@blitarflix.com" className="text-gray-400 text-xs sm:text-sm hover:text-red-500 transition-colors">
             contact@blitarflix.com
@@ -93,13 +95,14 @@ function MyListItemCard({
   onRemove: (id: number, type: 'movie' | 'tv') => void;
 }) {
   const [imageError, setImageError] = useState(false);
+  const { tt } = useTranslation();
 
   const posterUrl = item.poster_path
     ? getImageUrl(item.poster_path, 'poster', 'medium')
     : null;
 
-  const title = item.title || 'Untitled';
-  const releaseYear = item.release_date?.split('-')[0] || 'N/A';
+  const title = item.title || tt('card.untitled');
+  const releaseYear = item.release_date?.split('-')[0] || tt('card.na');
   const href = item.type === 'tv' ? `/tv/${item.id}` : `/movie/${item.id}`;
 
   return (

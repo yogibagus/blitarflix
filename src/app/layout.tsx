@@ -6,6 +6,7 @@ import { generateWebSiteSchema } from '@/lib/structured-data';
 import { DevToolsBlocker } from '@/components/DevToolsBlocker';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { LanguageProvider } from '@/lib/i18n/LanguageContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -78,10 +79,12 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </head>
       <body className={inter.className}>
-        <DevToolsBlocker />
-        {children}
-        <Analytics />
-        <SpeedInsights />
+        <LanguageProvider>
+          <DevToolsBlocker />
+          {children}
+          <Analytics />
+          <SpeedInsights />
+        </LanguageProvider>
       </body>
     </html>
   );

@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu, X, Globe } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -15,7 +16,10 @@ export function Header({ onSearch, isScrolled = false, showSearch = true }: Head
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const langMenuRef = useRef<HTMLDivElement>(null);
+  const { language, setLanguage, tt } = useTranslation();
 
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
@@ -35,6 +39,19 @@ export function Header({ onSearch, isScrolled = false, showSearch = true }: Head
     };
   }, [isMobileMenuOpen]);
 
+  // Close language menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(e.target as Node)) {
+        setIsLangMenuOpen(false);
+      }
+    };
+    if (isLangMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isLangMenuOpen]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -45,6 +62,11 @@ export function Header({ onSearch, isScrolled = false, showSearch = true }: Head
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
+  };
+
+  const handleLanguageChange = (lang: 'en' | 'id') => {
+    setLanguage(lang);
+    setIsLangMenuOpen(false);
   };
 
   return (
@@ -62,7 +84,7 @@ export function Header({ onSearch, isScrolled = false, showSearch = true }: Head
             <button
               className="lg:hidden p-2 -ml-2 touch-manipulation text-white"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-label={isMobileMenuOpen ? tt('nav.closeMenu') : tt('nav.openMenu')}
             >
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -73,25 +95,70 @@ export function Header({ onSearch, isScrolled = false, showSearch = true }: Head
 
             <nav className="hidden lg:flex items-center gap-1 ml-4">
               <Link href="/" className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                Home
+                {tt('nav.home')}
               </Link>
               <Link href="/browse/movie" className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                Movies
+                {tt('nav.movies')}
               </Link>
               <Link href="/browse/tv" className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                TV Shows
+                {tt('nav.tvShows')}
               </Link>
               <Link href="/browse/tv?genre=16" className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                Anime
+                {tt('nav.anime')}
               </Link>
               <Link href="/my-list" className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                My List
+                {tt('nav.myList')}
               </Link>
             </nav>
           </div>
 
-          {/* Right side - Search */}
+          {/* Right side - Language Toggle & Search */}
           <div className="flex items-center gap-2">
+            {/* Language Toggle */}
+            <div className="relative" ref={langMenuRef}>
+              <button
+                className="flex items-center gap-1 p-2 text-gray-300 hover:text-white touch-manipulation transition-colors"
+                onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                aria-label={tt('language.switch')}
+              >
+                <Globe className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="text-xs sm:text-sm font-medium uppercase">{language}</span>
+              </button>
+
+              <AnimatePresence>
+                {isLangMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl overflow-hidden min-w-[160px]"
+                  >
+                    <button
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                        language === 'en' ? 'bg-red-600/20 text-red-400' : 'text-gray-300 hover:bg-zinc-700 hover:text-white'
+                      }`}
+                      onClick={() => handleLanguageChange('en')}
+                    >
+                      <span className="text-base">🇺🇸</span>
+                      <span>English</span>
+                      {language === 'en' && <span className="ml-auto text-red-400">✓</span>}
+                    </button>
+                    <button
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                        language === 'id' ? 'bg-red-600/20 text-red-400' : 'text-gray-300 hover:bg-zinc-700 hover:text-white'
+                      }`}
+                      onClick={() => handleLanguageChange('id')}
+                    >
+                      <span className="text-base">🇮🇩</span>
+                      <span>Indonesia</span>
+                      {language === 'id' && <span className="ml-auto text-red-400">✓</span>}
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             {showSearch && (
               <AnimatePresence mode="wait">
                 {isSearchOpen ? (
@@ -106,7 +173,7 @@ export function Header({ onSearch, isScrolled = false, showSearch = true }: Head
                       <input
                         ref={searchInputRef}
                         type="text"
-                        placeholder="Search..."
+                        placeholder={tt('nav.search')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-[150px] sm:w-[250px] pr-10 pl-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg focus:border-red-500 focus:outline-none text-sm sm:text-base text-white placeholder-gray-400"
@@ -127,7 +194,7 @@ export function Header({ onSearch, isScrolled = false, showSearch = true }: Head
                   <button
                     className="p-2 text-gray-300 hover:text-white touch-manipulation"
                     onClick={() => setIsSearchOpen(true)}
-                    aria-label="Open search"
+                    aria-label={tt('nav.openSearch')}
                   >
                     <Search className="h-5 w-5 sm:h-6 sm:w-6" />
                   </button>
@@ -165,35 +232,35 @@ export function Header({ onSearch, isScrolled = false, showSearch = true }: Head
                   className="block py-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-zinc-800 rounded-lg px-3 transition-colors touch-manipulation"
                   onClick={closeMobileMenu}
                 >
-                  Home
+                  {tt('nav.home')}
                 </Link>
                 <Link 
                   href="/browse/movie" 
                   className="block py-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-zinc-800 rounded-lg px-3 transition-colors touch-manipulation"
                   onClick={closeMobileMenu}
                 >
-                  Movies
+                  {tt('nav.movies')}
                 </Link>
                 <Link 
                   href="/browse/tv" 
                   className="block py-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-zinc-800 rounded-lg px-3 transition-colors touch-manipulation"
                   onClick={closeMobileMenu}
                 >
-                  TV Shows
+                  {tt('nav.tvShows')}
                 </Link>
                 <Link 
                   href="/browse/tv?genre=16" 
                   className="block py-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-zinc-800 rounded-lg px-3 transition-colors touch-manipulation"
                   onClick={closeMobileMenu}
                 >
-                  Anime
+                  {tt('nav.anime')}
                 </Link>
                 <Link 
                   href="/my-list" 
                   className="block py-4 text-lg font-medium text-gray-300 hover:text-white hover:bg-zinc-800 rounded-lg px-3 transition-colors touch-manipulation"
                   onClick={closeMobileMenu}
                 >
-                  My List
+                  {tt('nav.myList')}
                 </Link>
               </nav>
             </motion.div>
